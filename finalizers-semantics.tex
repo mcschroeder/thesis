@@ -1,0 +1,293 @@
+\section{Semantics of STM}
+\label{sec:stm-orig-semantics}
+
+I now formalize my design by giving an operational semantics.
+In this Section, I present an overview of the original semantics of STM Haskell as described by \textcite{harris-et-al-2005}, including the revised exception semantics from their post-publication appendix.
+Using this as a foundation, I will then add the changes necessary to implement finalizers in \Cref{sec:stm-fin-semantics}.
+There I will also include the invariant semantics described by \textcite{harris-peytonjones-2006}.
+
+Throughout my presentation of these semantics, I aimed to keep as close to the original papers as possible to ease cross-referencing.
+However, a few minor modifications have been made to better reflect the current state of GHC, such as changing the names of some of the primitives.
+
+\bigskip
+\Cref{fig:orig-syntax,fig:orig-admin,fig:orig-io,fig:orig-stm} give the complete syntax and semantics of the original version of STM Haskell.
+% key idea, execution, I/O concurrency, STM atomicity
+The key idea is to separate \emph{I/O transitions} (``$\rightarrow$'', \Cref{fig:orig-io}) from \emph{STM transitions} (``$\Rightarrow$'', \Cref{fig:orig-stm}).
+Execution proceeds by non-deterministically choosing a thread and performing a single I/O transition.
+Thus, the execution of different threads may be interleaved and we have concurrency on the I/O level.
+However, STM transitions can not interleave.
+They are only ever performed as premises of the \term{atomically} operator and the resulting state change is thus regarded as a single atomic step on the I/O level.
+
+% logs and rollback
+Simply requiring that \term{atomically} must reduce (on the STM level) to either \term{return} or \term{throw}, and not \term{retry}, obviates the need for modeling transaction logs or rollback.
+These matters are left for the implementation.
+
+\subsubsection{Syntax}
+
+\begin{figure}
+\input{semantics/orig-syntax}
+\caption{The original syntax of STM Haskell\\ \parencite{harris-et-al-2005}}
+\label{fig:orig-syntax}
+\end{figure}
+
+% syntax of values and terms
+The syntax of values and terms (\Cref{fig:orig-syntax}) is entirely conventional, except that some monadic combinators are treated as values.
+%
+% do notation
+The \term{do}-notation used in the preceding sections is of course just the usual syntactic sugar for the monadic operators \term{>>=} and \term{return}:
+\begin{align*}
+\term{do \string{ x <- e; Q \string}} & \quad\equiv\quad \term{e >>= (\string\x \ -> do \string{ Q \string})}\\
+\term{do \string{ e; Q \string}} & \quad\equiv\quad \term{e >>= (\string\_ -> do \string{ Q \string})}\\
+\term{do \string{ e \string}} & \quad\equiv\quad \term{e}
+\end{align*}
+
+% syntax for program state
+A \emph{program state} $P;\Theta$ consists of a \emph{thread soup} $P$ and a \emph{heap} $\Theta$.
+The thread soup $P$ is a multi-set of threads with each thread consisting of a single term $M_t$, where $t$ is the thread ID.
+The heap $\Theta$ maps references to terms.
+
+% allocation effects
+Additionally, we sometimes want to explicitly track a set of \emph{allocation effects} $\Delta$.
+This is a redundant subset of the heap.
+We mainly need it during exception handling, where we want to roll back heap effects but have to retain allocation effects.
+
+% evaluation context
+When describing a transition between program states, we use an \emph{evaluation context} to identify the active site of the transition.
+The program evaluation context $\mathbb{P}$ arbitrarily chooses a thread from the soup.
+This corresponds to the scheduler of a real implementation.
+STM terms are then evaluated using the context $\mathbb{S}$.
+
+\subsubsection{Administrative transitions}
+
+\begin{figure}
+\input{semantics/orig-admin}
+\caption{Administrative transitions of STM Haskell\\ \parencite{harris-et-al-2005}}
+\label{fig:orig-admin}
+\end{figure}
+
+% admin transitions
+A few fundamental transitions are used on both the I/O and the STM level (\Cref{fig:orig-admin}).
+The rule \rul{BIND}, which implements sequential composition in the monad, as well as \rul{THROW} and \rul{RETRY} are quite ordinary.
+\rul{EVAL} allows evaluation of terms.
+It uses a function $\mathcal{V}$, which is entirely standard and whose definition is omitted.
+
+% lifting
+The I/O level rule \rul{ADMIN} lifts administrative rules into the I/O world. \rul{AADMIN} does the same for STM.
+
+\subsubsection{I/O transitions}
+
+\begin{figure}
+\input{semantics/orig-io}
+\caption{I/O-level transitions of STM Haskell\\ \parencite{harris-et-al-2005}}
+\label{fig:orig-io}
+\end{figure}
+
+% io transitions
+A top level I/O transition (\Cref{fig:orig-io}) is of the form
+$$P;\Theta \enspace\xrightarrow{a}\enspace Q;\Theta'.$$ 
+It takes a program state $P;\Theta$ to a new state $Q;\Theta'$ while performing the input/output action $a$.
+The actions $!c$ and $?c$ denote writing a character to the standard output and reading a character from the standard input, respectively.
+The silent action $\epsilon$ does nothing and is usually omitted.
+These are the only actions in our model, a real system would of course have many more.
+
+% rules
+The first two rules, \rul{PUTC} and \rul{GETC}, are applicable when the active term is \term{putChar} or \term{getChar}, respectively.
+The transition carries out the appropriate action and replaces the term with a \term{return} containing the result.
+The rule \rul{FORK} creates a new thread, with a freshly chosen thread ID $t$, and adds it to the thread soup.
+\rul{CATCH1} and \rul{CATCH2} handle I/O level exceptions in the standard way.
+
+% atomically rules
+More interesting are the rules \rul{ARET} and \rul{ATHROW}.
+They define the semantics of atomic blocks.
+We can see that the only way to perform zero or more STM transitions (``$\Rightarrow$'') is by performing a single I/O transition (``$\rightarrow$''), brought about by the \term{atomically} keyword.
+Interleaving of STM transitions is therefore not possible.
+Also, these are the only I/O level rules that affect the heap, which means that the heap can only be mutated inside an atomic block.
+
+% aret
+The rule \rul{ARET} concerns STM terms that ultimately evaluate to \term{return} statements.
+This means the STM transaction was successfully completed and the updated heap $\Theta'$ becomes visible on the I/O level.
+%
+% athrow
+If, on the other hand, the STM term evaluates to $\term{throw}\ N$, i.e. if the STM transaction throws an exception $N$, the exception is propagated to the I/O level and the new heap discarded.
+Only the allocation effects $\Delta'$ are kept and made globally visible.
+This is necessary because the exception value $N$ may contain references to variables that were allocated inside the transaction and we do not want to leave dangling pointers around.
+
+\subsubsection{STM transitions}
+
+\begin{figure}
+\input{semantics/orig-stm}
+\caption{STM-level transitions of STM Haskell\\ \parencite{harris-et-al-2005}}
+\label{fig:orig-stm}
+\end{figure}
+
+% stm transitions
+An \emph{STM transition} (\Cref{fig:orig-stm}) is of the form 
+$$M;\Theta,\Delta \enspace\Rightarrow\enspace N;\Theta',\Delta'.$$
+$\Theta$ is again the heap, while $\Delta$ redundantly records the allocation effects.
+Note that none of these effects are visible globally until we make a transition on the I/O level that exposes them.
+All STM transitions stay completely within the STM layer, except for rule \rul{AADMIN}, which just lifts pure administrative transitions.
+
+% read, write, new
+Most of the STM rules are quite standard.
+\rul{READ}, \rul{WRITE} and \rul{NEW} describe the reading, writing and allocating of mutable variables.
+Note how \rul{NEW} makes allocation effects explicit by modifying $\Delta$.
+
+% or1-3
+The rules \rul{OR1-3} handle the kind of nested transactions made possible by the \term{orElse} combinator\footnote{Not to be confused with the nesting of \term{atomically} calls described in \Cref{subsec:stm-example-nesting}}.
+When encountering a term of the form $M_1\ \term{orElse}\ M_2$ we always begin by inspecting the left branch $M_1$.
+If this evaluates to a \term{return} \rul{OR1} or a \term{throw} \rul{OR2}, the result is propagated and all memory effects are retained.
+Keep in mind that we are still on the STM level.
+If the whole STM transaction finally evaluates to \term{throw}, then its memory effects are of course globally discarded by the I/O level rule \rul{ATHROW}.
+If we encounter a \term{retry} when evaluating $M_1$, rule \rul{OR3} applies, discarding all memory effects and continuing with the evaluation of the right branch $M_2$.
+
+% xstm1-3
+Rules \rul{XSTM1-3} describe exception handling within STM by use of the \term{catch} combinator.
+When evaluating the body $M$ of a term $\term{catch}\ M\ N$, we start with the current heap $\Theta$ and an empty set of allocation effects.
+On successful evaluation \rul{XSTM1}, all effects are preserved and the catch handler $N$ is ignored.
+If $M$ throws an exception \rul{XSTM2}, that exception is given to the handler $N$ and only the allocation effects of $M$ are preserved.
+If $M$ evaluates to \term{retry} \rul{XSTM3}, all effects are discarded.
+
+This last set of rules was introduced in the post-publication appendix of \textcite{harris-et-al-2005} to alleviate a subtle issue concerning leaking of effects.
+For a more elaborate discussion, of this issue and of the whole system, refer to that paper.
+
+%------------------------------------------------------------
+
+\section{Semantics of finalizers}
+\label{sec:stm-fin-semantics}
+
+\begin{figure}
+\input{semantics/step1-io}
+\caption{I/O-level transitions of STM Haskell with \colorA{finalizers}}
+\label{fig:step1-io}
+\end{figure}
+
+Now that we are familiar with the original STM semantics, we can extend them to support finalizers.
+First, let us realize that \term{atomically} is trivially expressed in terms of \term{atomicallyWithIO}:
+\begin{align*}
+\term{atomically m} & \quad\equiv\quad \term{atomicallyWithIO m return}
+\end{align*}
+We can therefore use \term{atomicallyWithIO} to replace the old \term{atomically} completely.
+This keeps things simple and saves us from an annoying duplication of rules.
+\Cref{fig:step1-io} gives the revised I/O transitions.
+There is no need to change anything on the STM level.
+
+% athrow1
+Rule \rul{ATHROW} has been replaced by \rul{ATHROW1}, which is identical except that it now uses \term{atomicallyWithIO}.
+Like before, if the STM term evaluates to an exception, the changed heap $\Theta'$ is discarded and only the allocation effects $\Delta'$ are kept.
+The finalizer $F$ given to \term{atomicallyWithIO} is simply ignored in this case.
+
+% aret
+The heart of the change is to be found in rule \rul{ARET}, which now has an additional premise:
+After the atomic block returns, the finalizer given to \term{atomicallyWithIO} must also evaluate to \term{return}.
+It does so by making zero or more \emph{I/O-level} transitions.
+Note that these transitions begin with the original unchanged heap $\Theta$.
+The finalizer executes in a global context, where the results of the STM transaction are not yet visible.
+Thus the finalizer cannot know about the modified heap $\Theta'$.
+(It must know about the allocation effects $\Delta'$, however:
+$N$ could contain a reference to a newly allocated variable and we don't want any dangling pointers.)
+The final heap resulting from the \rul{ARET} transition is the union of the STM result heap $\Theta'$ with the result heap of the I/O transition, $\hat{\Theta}$.
+
+% athrow2
+The new rule \rul{ATHROW2} handles exceptions that occur during the coupled I/O transition.
+Like with \rul{ATHROW1}, the STM result heap $\Theta'$ is discarded.
+However, the I/O result heap $\hat{\Theta}$ \emph{must be kept}, because it could have already been seen by other I/O level transitions.
+This is what we mean when we speak of irrevocable I/O.
+
+%------------------------------------------------------------
+
+\subsection{Nesting}
+
+\begin{figure}
+\input{semantics/step2-stm}
+\caption{STM-level transitions of STM Haskell with \colorA{finalizers}, including \colorB{nesting checks}}
+\label{fig:step2-stm}
+\end{figure}
+
+\begin{figure}
+\input{semantics/step2-io}
+\caption{I/O-level transitions of STM Haskell with \colorA{finalizers}, including \colorB{nesting checks}}
+\label{fig:step2-io}
+\end{figure}
+
+The attentive reader might have noticed that in the extended semantics given above the following term is perfectly valid:
+$$
+\term{atomicallyWithIO}\ M_1\ (\term{atomicallyWithIO}\ M_2\ F)
+$$
+
+As I have discussed in \Cref{sec:stm-overview}, this kind of nesting is actually pretty useful in practice.
+However, it does open up the possibility of deadlocks if the term $M_2$ writes to any of the memory locations referenced by $M_1$.
+Such behavior should be explicitly prohibited in the semantics, which need to be extended a bit further to do so (\Cref{fig:step2-stm,fig:step2-io}).
+
+% sigma
+Firstly, both I/O and STM transitions will carry around a new piece of state $\Sigma$, which is a set of labeled memory references:
+$$
+\Sigma ::= r \times (\textsc{r}\ \vert\ \textsc{w})
+$$
+It is a record of all memory operations done by a transaction.
+The labels \textsc{r} and \textsc{w} denote whether a particular memory location was read from or written to, respectively.
+As a shorthand notation, we define $\Sigma_\textsc{w}=\{r \mid (r,\textsc{w}) \in \Sigma\}$, i.e. the set of references in $\Sigma$ that have been used in a write operation.
+$\Sigma_\textsc{r}$ and $\Sigma_\textsc{rw}$ are defined analogously.
+We also define $\Sigma\vert_\Delta=\{ (r,\textsc{w}) \in \Sigma \mid r \in dom(\Delta)\}$, which restricts $\Sigma$ to those labelled references that correspond to the allocations recorded in $\Delta$.
+
+% stm
+Secondly, the STM transition rules \rul{READ}, \rul{WRITE} and \rul{NEW} modify $\Sigma$ by recording their respective operations.
+All other rules treat $\Sigma$ in very much the same way as the heap.
+
+% io
+Finally, the purpose of $\Sigma$ becomes clear on the I/O-level, where rules \rul{ARET} and \rul{ATHROW2} include a new condition above the line:
+The set of memory locations read from or written to during the STM transition ($\Sigma'_\textsc{rw}$) and the set of memory locations written to during the finalizing I/O transition ($\hat{\Sigma}_\textsc{w}$) must be entirely distinct.
+There must not be a single shared reference between the two phases -- except for references that the finalizer has only read.
+This is exactly the restriction necessary to avoid deadlocks.
+
+%------------------------------------------------------------
+
+\subsection{Adding invariants}
+
+\begin{figure}
+\input{semantics/final-syntax}
+\caption{The syntax of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
+\label{fig:final-syntax}
+\end{figure}
+
+\begin{figure}
+\input{semantics/final-io}
+\caption{I/O-level transitions of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
+\label{fig:final-io}
+\end{figure}
+
+
+\begin{figure}
+\input{semantics/final-stm}
+\caption{STM-level transitions of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
+\label{fig:final-stm}
+\end{figure}
+
+GHC's STM implementation includes the \term{alwaysSucceeds} primitive, used to introduce dynamically-checked data invariants.
+It was first described in \textcite{harris-peytonjones-2006} (where it was called \term{check}).
+I have ignored invariants thus far since they increase the overall complexity of the semantics and are mostly orthogonal to finalizers.
+It is now time to introduce them.
+\Cref{fig:final-syntax,fig:final-stm,fig:final-io} constitute the complete and final syntax and semantics of STM Haskell with finalizers.
+
+% sigma
+Firstly, we add the set of invariants $\Omega$ as another piece of state associated with all I/O and STM transitions.
+It is usually treated like $\Sigma$ or the heap.
+
+% check1-2
+Secondly, the new STM transition rules \rul{CHECK1} and \rul{CHECK2} describe the \term{alwaysSucceeds} primitive.
+If the invariant holds at the point it is proposed, \rul{CHECK1} adds it to $\Omega$ and discards its evaluation effects.
+\rul{CHECK2} applies when the invariant throws an exception.
+As usual, the exception is propagated, the invariant discarded and only allocation effects are retained.
+%TODO reference ghc bug?
+
+% aret1, athrow2
+Finally, the biggest changes happen on the I/O level:
+\rul{ARET} becomes \rul{ARET1};
+along with \rul{ATHROW2} it has a new premise that evaluates the invariants in place at the end of the STM transition.
+When evaluating each invariant, its return value and all its heap effects are discarded.
+Only if all invariants evaluate to \term{return} terms can we run the finalizer of \term{atomicallyWithIO}.
+Note that it is required that the write set of the I/O transition ($\hat{\Sigma}_\textsc{w}$) is distinct from all of the memory locations referenced by the invariants ($\bigcup\Sigma'_i$).
+
+% aret2
+If any of the invariants throws an exception, the new rule \rul{ARET2} applies.
+Similar to \rul{ATHROW1}, the exception is propagated to the I/O level and only allocation effects are preserved (including the allocation effects $\Delta'_i$ of the broken invariant $M_i$).
+The I/O action is not executed in this case.

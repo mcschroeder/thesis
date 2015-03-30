@@ -1,0 +1,25 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{I/O transitions \qquad$P;\ \Theta\colorB{,\Sigma}\ \xrightarrow{a}\ Q;\ \Theta'\colorB{,\Sigma'}$}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} l@{}}
+\ctxP{\term{putChar } c};\ \Theta\colorB{,\Sigma} & \xrightarrow{!c} & \ctxP{\term{return ()}};\ \Theta\colorB{,\Sigma} & \rul{PUTC} \\
+\ctxP{\term{getChar}};\ \Theta\colorB{,\Sigma} & \xrightarrow{?c} & \ctxP{\term{return}\ c};\ \Theta\colorB{,\Sigma} & \rul{GETC} \\
+\ctxP{\term{forkIO } M};\ \Theta\colorB{,\Sigma} & \rightarrow & (\ctxP{\term{return}\ t}\ \vert\ M_t);\ \Theta\colorB{,\Sigma} \quad t \notin \mathbb{P},\Theta\colorB{,\Sigma},M & \rul{FORK} \\
+\ctxP{\term{catch}\ (\term{return}\ M)\ N};\ \Theta\colorB{,\Sigma} & \rightarrow & \ctxP{\term{return}\ M};\ \Theta\colorB{,\Sigma} & \rul{CATCH1} \\
+\ctxP{\term{catch}\ (\term{throw}\ P)\ N};\ \Theta\colorB{,\Sigma} & \rightarrow & \ctxP{N\ P};\ \Theta\colorB{,\Sigma} & \rul{CATCH2} \\
+\end{adjustbox}\\
+\\
+\inference{M\ \rightarrow\ N}{\ctxP{M};\ \Theta\colorB{,\Sigma}\ \rightarrow\ \ctxP{N};\ \Theta\colorB{,\Sigma}}[\rul{ADMIN}]\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta,\{\}\colorB{,\{\}} \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'\colorB{,\Sigma'}\\ \colorA{F\ N;\ (\Theta \cup \Delta')\colorB{,\{\}}\ \xrightarrow{*}\ \term{return}\ P;\ \hat{\Theta}\colorB{,\hat{\Sigma}}} & \colorB{(\Sigma'_{\textsc{rw}}\cap\hat{\Sigma}_{\textsc{w}})=\emptyset}}{\ctxP{\colorA{\term{atomicallyWithIO}}\ M\ \colorA{F}};\ \Theta\colorB{,\Sigma}\ \rightarrow\ \ctxP{\term{return}\ \colorA{P}};\ \colorA{(}\Theta'\colorA{{}\cup\hat{\Theta}{})}\colorB{,(\Sigma\cup\Sigma'\cup\hat{\Sigma})}}[\rul{ARET}]
+\end{adjustbox}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta,\{\}\colorB{,\{\}}\ \xRightarrow{*}\ \term{throw}\ N;\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxP{\colorA{\term{atomicallyWithIO}}\ M\ \colorA{F}};\ \Theta\colorB{,\Sigma}\ \rightarrow\ \ctxP{\term{throw}\ N};\ (\Theta \cup \Delta')\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'})}}[\rul{ATHROW\colorA{1}}]
+\end{adjustbox}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\colorA{\inference{M;\ \Theta,\{\}\colorB{,\{\}}\ \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'\colorB{,\Sigma'}\\ F\ N;\ (\Theta \cup \Delta')\colorB{,\{\}}\ \xrightarrow{*}\ \term{throw}\ P;\ \hat{\Theta}\colorB{,\hat{\Sigma}} & \colorB{(\Sigma'_{\textsc{rw}}\cap\hat{\Sigma}_{\textsc{w}})=\emptyset}}{\ctxP{\term{atomicallyWithIO}\ M\ F};\ \Theta\colorB{,\Sigma}\ \rightarrow\ \ctxP{\term{throw}\ P};\ \hat{\Theta}\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'}\cup\hat{\Sigma})}}[\rul{ATHROW2}]}
+\end{adjustbox}
+\end{adjustbox}

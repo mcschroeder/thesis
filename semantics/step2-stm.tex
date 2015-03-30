@@ -1,0 +1,25 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{STM transitions \qquad $M;\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ N;\ \Theta',\Delta'\colorB{,\Sigma'}$}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} >{$}l<{$} l@{}}
+\ctxS{\term{readTVar}\ r};\ \Theta,\Delta\colorB{,\Sigma} & \Rightarrow & \ctxS{\term{return}\ \Theta(r)};\ \Theta,\Delta\colorB{,(\Sigma\cup\{(r,\textsc{r})\})} & \text{if } r \in dom(\Theta) & \rul{READ} \\
+\ctxS{\term{writeTVar}\ r\ M};\ \Theta,\Delta\colorB{,\Sigma} & \Rightarrow & \ctxS{\term{return ()}};\ \Theta[r\mapsto M],\Delta\colorB{,(\Sigma\cup\{(r,\textsc{w})\})} & \text{if } r \in dom(\Theta) & \rul{WRITE} \\
+\ctxS{\term{newTVar}\ M};\ \Theta,\Delta\colorB{,\Sigma} & \Rightarrow & \ctxS{\term{return}\ r};\ \Theta[r\mapsto M],\Delta[r\mapsto M]\colorB{,(\Sigma\cup\{(r,\textsc{w})\})} & r \notin dom(\Theta) & \rul{NEW}
+\end{adjustbox}\\
+\\
+\inference{M \quad \rightarrow \quad N}{\ctxS{M};\ \Theta,\Delta\colorB{,\Sigma}\  \Rightarrow\ \ctxS{N};\ \Theta,\Delta\colorB{,\Sigma}}[\rul{AADMIN}]\\
+\\
+\inference{M_1;\ \Theta,\Delta\colorB{,\Sigma}\ \xRightarrow{*}\ \term{return}\ N;\ \Theta', \Delta'\colorB{,\Sigma'}}{\ctxS{M_1\ \term{`orElse`}\ M_2};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\  \ctxS{\term{return}\ N};\ \Theta',\Delta'\colorB{,\Sigma'}}[\rul{OR1}]\\
+\\
+\inference{M_1;\ \Theta,\Delta\colorB{,\Sigma}\ \xRightarrow{*}\ \term{throw}\ N;\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxS{M_1\ \term{orElse}\ M_2};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ \ctxS{\term{throw}\ N};\ \Theta',\Delta'\colorB{,\Sigma'}}[\rul{OR2}]\\
+\\
+\inference{M_1;\ \Theta,\Delta\colorB{,\Sigma}\ \xRightarrow{*}\ \term{retry} ;\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxS{M_1\ \term{orElse}\ M_2};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ \ctxS{M_2};\ \Theta,\Delta\colorB{,\Sigma}}[\rul{OR3}]\\
+\\
+\inference{M;\ \Theta,\{\}\colorB{,\Sigma}\ \xRightarrow{*}\ \term{return}\ P;\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ \ctxS{\term{return}\ P};\ \Theta',(\Delta\cup\Delta')\colorB{,\Sigma'}}[\rul{XSTM1}]\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta,\{\}\colorB{,\Sigma}\ \xRightarrow{*}\ \term{throw}\ P;\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ \ctxS{N\ P};\ (\Theta\cup\Delta'),(\Delta\cup\Delta')\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'})}}[\rul{XSTM2}]
+\end{adjustbox}\\
+\\
+\inference{M;\ \Theta,\{\}\colorB{,\Sigma}\ \xRightarrow{*}\ \term{retry};\ \Theta',\Delta'\colorB{,\Sigma'}}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\colorB{,\Sigma}\ \Rightarrow\ \ctxS{\term{retry}};\ \Theta,\Delta\colorB{,\Sigma}}[\rul{XSTM3}]
+\end{adjustbox}

@@ -1,0 +1,26 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{STM transitions \qquad $M;\ \Theta,\Delta\ \Rightarrow\ N;\ \Theta',\Delta'$}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} >{$}l<{$} l@{}}
+\ctxS{\term{readTVar}\ r};\ \Theta,\Delta & \Rightarrow & \ctxS{\term{return}\ \Theta(r)};\ \Theta,\Delta & \text{if } r \in dom(\Theta) & \rul{READ} \\
+\ctxS{\term{writeTVar}\ r\ M};\ \Theta,\Delta & \Rightarrow & \ctxS{\term{return} \texttt{()}};\ \Theta[r\mapsto M],\Delta & \text{if } r \in dom(\Theta) & \rul{WRITE} \\
+\ctxS{\term{newTVar}\ M};\ \Theta,\Delta & \Rightarrow & \ctxS{\term{return}\ r};\ \Theta[r\mapsto M],\Delta[r\mapsto M] & r \notin dom(\Theta) & \rul{NEW}
+\end{adjustbox}\\
+\\
+\inference{M \quad \rightarrow \quad N}{\ctxS{M};\ \Theta,\Delta\  \Rightarrow\ \ctxS{N};\ \Theta,\Delta}[\rul{AADMIN}]\\
+\\
+\inference{M_1;\ \Theta,\Delta\ \xRightarrow{*}\ \term{return}\ N;\ \Theta', \Delta'}{\ctxS{M_1\ \term{`orElse`}\ M_2};\ \Theta,\Delta\ \Rightarrow\  \ctxS{\term{return}\ N};\ \Theta',\Delta'}[\rul{OR1}]\\
+\\
+\inference{M_1;\ \Theta,\Delta\ \xRightarrow{*}\ \term{throw}\ N;\ \Theta',\Delta'}{\ctxS{M_1\ \term{`orElse`}\ M_2};\ \Theta,\Delta\ \Rightarrow\ \ctxS{\term{throw}\ N};\ \Theta', \Delta'}[\rul{OR2}]\\
+\\
+%TODO why are the allocation effects not preserved?
+\inference{M_1;\ \Theta,\Delta\ \xRightarrow{*}\ \term{retry} ;\ \Theta',\Delta'}{\ctxS{M_1\ \term{`orElse`}\ M_2};\ \Theta,\Delta\ \Rightarrow\ \ctxS{M_2};\ \Theta,\Delta}[\rul{OR3}]\\
+\\
+%TODO ghc discards all invariants added as part of a catch block, contrary to these semantics. this is most probably a bug (it does not discard invariants added in the exception handler of catch) the question is: should invariants added before a throw in a catch block also be retained?
+\inference{M;\ \Theta,\{\}\ \xRightarrow{*}\ \term{return}\ P;\ \Theta',\Delta'}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\ \Rightarrow\ \ctxS{\term{return}\ P};\ \Theta',(\Delta\cup\Delta')}[\rul{XSTM1}]\\
+\\
+\inference{M;\ \Theta,\{\}\ \xRightarrow{*}\ \term{throw}\ P;\ \Theta',\Delta'}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\ \Rightarrow\ \ctxS{N\ P};\ (\Theta\cup\Delta'),(\Delta\cup\Delta')}[\rul{XSTM2}]\\
+\\
+%TODO again, why are the allocation effects not preserved?
+\inference{M;\ \Theta,\{\}\ \xRightarrow{*}\ \term{retry};\ \Theta',\Delta'}{\ctxS{\term{catch}\ M\ N};\ \Theta,\Delta\ \Rightarrow\ \ctxS{\term{retry}};\ \Theta,\Delta}[\rul{XSTM3}]
+\end{adjustbox}

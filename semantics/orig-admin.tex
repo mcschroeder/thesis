@@ -1,0 +1,13 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{Administrative transitions \qquad $M\ \rightarrow\ N$}\\
+\\\\
+\begin{tabular}{@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} l@{}}
+M & \rightarrow & V \quad \text{if }\mathcal{V}[\![M]\!] = V \text{ and } M \not\equiv V & \rul{EVAL}
+\end{tabular}\\
+\\
+\begin{tabular}{@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} l@{}}
+\term{return}\ N\ \term{>>=}\ M & \rightarrow & M\ N & \rul{BIND}\\
+\term{throw}\ N\ \term{>>=}\ M & \rightarrow & \term{throw}\ N & \rul{THROW}\\
+\term{retry}\ \term{>>=}\ M & \rightarrow & \term{retry} & \rul{RETRY}\\
+\end{tabular}
+\end{adjustbox}

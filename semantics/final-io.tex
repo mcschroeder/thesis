@@ -1,0 +1,30 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{I/O transitions \qquad$P;\ \Theta,\colorB{\Sigma},\Omega\ \xrightarrow{a}\ Q;\ \Theta',\colorB{\Sigma'},\Omega'$}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} l@{}}
+\ctxP{\term{putChar } c};\ \Theta\colorB{,\Sigma},\Omega & \xrightarrow{!c} &\ctxP{\term{return ()}};\ \Theta\colorB{,\Sigma},\Omega & \rul{PUTC} \\
+\ctxP{\term{getChar}};\ \Theta\colorB{,\Sigma},\Omega & \xrightarrow{?c} & \ctxP{\term{return}\ c};\ \Theta\colorB{,\Sigma},\Omega & \rul{GETC} \\
+\ctxP{\term{forkIO } M};\ \Theta\colorB{,\Sigma},\Omega & \rightarrow & (\ctxP{\term{return}\ t}\ \vert\ M_t);\ \Theta\colorB{,\Sigma},\Omega \quad t \notin \mathbb{P},\Theta\colorB{,\Sigma},\Omega,M & \rul{FORK} \\
+\ctxP{\term{catch}\ (\term{return}\ M)\ N};\ \Theta\colorB{,\Sigma},\Omega & \rightarrow & \ctxP{\term{return}\ M};\ \Theta\colorB{,\Sigma},\Omega & \rul{CATCH1} \\
+\ctxP{\term{catch}\ (\term{throw}\ P)\ N};\ \Theta\colorB{,\Sigma},\Omega & \rightarrow & \ctxP{N\ P};\ \Theta\colorB{,\Sigma},\Omega & \rul{CATCH2}
+\end{adjustbox}\\
+\\
+\inference{M\ \rightarrow\ N}{\ctxP{M};\ \Theta\colorB{,\Sigma},\Omega\ \rightarrow\ \ctxP{N};\ \Theta\colorB{,\Sigma},\Omega}[\rul{ADMIN}]\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta\colorB{,\{\}},\{\},\Omega\ \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'\colorB{,\Sigma'},\Omega'\\ \forall M_i\in\Omega' : (M_i;\ \Theta',\{\}\colorB{,\{\}},\{\}\ \xRightarrow{*}\ \term{return}\ N_i;\ \Theta'_i,\Delta'_i\colorB{,\Sigma'_i},\Omega'_i)\\ \colorA{F\ N;\ (\Theta \cup \Delta'),\{\},\Omega\ \xrightarrow{*}\ \term{return}\ P;\ \hat{\Theta}\colorB{,\hat{\Sigma}},\hat{\Omega}} & \colorB{(\bigcup\Sigma'_i\cup\Sigma')_\textsc{rw} \cap\hat{\Sigma}_{\textsc{w}}=\emptyset}}{\ctxP{\colorA{\term{atomicallyWithIO}}\ M\ \colorA{F}};\ \Theta\colorB{,\Sigma},\Omega\ \rightarrow\ \ctxP{\term{return}\ \colorA{P}};\ \colorA{(}\Theta'\colorA{{}\cup{}\hat{\Theta})}\colorB{,(\Sigma\cup\Sigma'\cup\hat{\Sigma})},(\Omega'\cup\hat{\Omega})}[\rul{ARET1}]
+\end{adjustbox}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\colorA{%
+\inference{M;\ \Theta,\{\}\colorB{,\{\}},\Omega\ \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'\colorB{,\Sigma'},\Omega'\\ \forall M_i\in\Omega' : (M_i;\ \Theta',\{\}\colorB{,\{\}},\{\}\ \xRightarrow{*}\ \term{return}\ N_i;\ \Theta'_i,\Delta'_i\colorB{,\Sigma'_i},\Omega'_i)\\ F\ N;\ (\Theta \cup \Delta')\colorB{,\{\}},\Omega\ \xrightarrow{*}\ \term{throw}\ P;\ \hat{\Theta}\colorB{,\hat{\Sigma}},\hat{\Omega} & \colorB{(\bigcup\Sigma'_i\cup\Sigma')_\textsc{rw} \cap\hat{\Sigma}_{\textsc{w}}=\emptyset}}{\ctxP{\term{atomicallyWithIO}\ M\ F};\ \Theta\colorB{,\Sigma},\Omega\ \rightarrow\ \ctxP{\term{throw}\ P};\ \hat{\Theta}\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'}\cup\hat{\Sigma})},\hat{\Omega}}[\rul{ATHROW2}]}
+\end{adjustbox}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta,\{\}\colorB{,\{\}},\Omega\ \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'\colorB{,\Sigma'},\Omega'\\ \exists M_i\in\Omega' : (M_i;\ \Theta',\{\}\colorB{,\{\}},\{\}\ \xRightarrow{*}\ \term{throw}\ N_i;\ \Theta'_i,\Delta'_i\colorB{,\Sigma'_i},\Omega'_i)}{\ctxP{\colorA{\term{atomicallyWithIO}}\ M\ \colorA{F}};\ \Theta\colorB{,\Sigma},\Omega\ \rightarrow\  \ctxP{\term{throw}\ N_i};\ (\Theta\cup\Delta'\cup\Delta'_i)\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'}\cup\Sigma'_i\vert_{\Delta'_i})},\Omega}[\rul{ARET2}]
+\end{adjustbox}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}c@{}}
+\inference{M;\ \Theta,\{\}\colorB{,\{\}},\Omega\ \xRightarrow{*}\ \term{throw}\ N;\ \Theta',\Delta'\colorB{,\Sigma'},\Omega'}{\ctxP{\colorA{\term{atomicallyWithIO}}\ M\ \colorA{F}};\ \Theta\colorB{,\Sigma},\Omega\ \rightarrow\ \ctxP{\term{throw}\ N};\ (\Theta \cup \Delta')\colorB{,(\Sigma\cup\Sigma'\vert_{\Delta'})},\Omega}[\rul{ATHROW\colorA{1}}]
+\end{adjustbox}
+\end{adjustbox}

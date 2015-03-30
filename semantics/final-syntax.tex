@@ -1,0 +1,28 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}r >{$}r<{$} >{$}c<{$} >{$}l<{$}@{}}
+& x,y & \in & Variable \\
+& r,t & \in & Name \\
+& c & \in & Char \\
+\\
+Value & V &  ::=  & r \svert c \svert \term{\textbackslash}\ x \term{->}\ M\\
+& & \vert & \term{return}\ M \svert M\ \term{>>=}\ N \\
+& & \vert & \term{putChar}\ c \svert \term{getChar} \\
+& & \vert & \term{throw}\ M \svert \term{catch}\ M\ N \\
+& & \vert & \term{retry} \svert M\ \term{`orElse`}\ N \\
+& & \vert & \term{newTVar} \\
+& & \vert & \term{readTVar}\ r \svert \term{writeTVar}\ r\ M \\
+& & \vert & \term{forkIO}\ M \\
+& & \vert & \term{alwaysSucceeds}\ M \\
+& & \vert & \colorA{\term{atomicallyWithIO}\ M\ X} \\
+\\
+Term & M,N & ::= & x \svert V \svert M\ N \svert \ldots \\
+\\
+Thread soup & P,Q & ::= & M_t \svert (P\ \vert\ Q) \\
+Heap & \Theta & ::= & r \hookrightarrow M \\
+Allocations & \Delta & ::= & r \hookrightarrow M \\
+\colorB{Touched references} & \colorB{\Sigma} & \colorB{::=} & \colorB{r \times (\textsc{r}\ \vert\ \textsc{w})} \\
+Invariants & \Omega & ::= & \{M\} \\
+\\
+Evaluation contexts & \mathbb{S} & ::= & [\cdot] \svert \mathbb{S}\ \term{>>=}\ M \\
+& \mathbb{P} & ::= & \mathbb{S}_t \svert (\mathbb{P}\ \vert\ P) \svert (P\ \vert\ \mathbb{P}) \\
+Action & a & ::= & !c \svert ?c \svert \epsilon
+\end{adjustbox}

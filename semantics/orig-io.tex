@@ -1,0 +1,17 @@
+\begin{adjustbox}{frame=0.5pt 1em,max width=\textwidth,center,tabular=@{}c@{}}
+\fbox{I/O transitions \qquad$P;\ \Theta\ \xrightarrow{a}\ Q;\ \Theta'$}\\
+\\
+\begin{adjustbox}{max width=\linewidth,tabular=@{}>{$}r<{$} >{$}c<{$} >{$}l<{$} l}
+\ctxP{\term{putChar}\ c};\ \Theta & \xrightarrow{!c} & \ctxP{\term{return ()}};\ \Theta & \rul{PUTC} \\
+\ctxP{\texttt{getChar}};\ \Theta & \xrightarrow{?c} & \ctxP{\term{return}\ c};\ \Theta & \rul{GETC} \\
+\ctxP{\texttt{forkIO } M};\ \Theta & \rightarrow & (\ctxP{\term{return}\ t}\ \vert\ M_t);\ \Theta \quad t \notin \mathbb{P},\Theta,M & \rul{FORK} \\
+\ctxP{\term{catch}\ (\term{return}\ M)\ N};\ \Theta & \rightarrow & \ctxP{\term{return}\ M};\ \Theta & \rul{CATCH1} \\
+\ctxP{\term{catch}\ (\term{throw}\ P)\ N};\ \Theta & \rightarrow & \ctxP{N\ P};\ \Theta & \rul{CATCH2} \\
+\end{adjustbox}\\
+\\
+\inference{M\ \rightarrow\ N}{\ctxP{M};\ \Theta\ \rightarrow\ \ctxP{N};\ \Theta}[\rul{ADMIN}]\\
+\\
+\inference{M;\ \Theta,\{\}\ \xRightarrow{*}\ \term{return}\ N;\ \Theta',\Delta'}{\ctxP{\term{atomically}\ M};\ \Theta\ \rightarrow\ \ctxP{\term{return}\ N};\ \Theta'}[\rul{ARET}]\\
+\\
+\inference{M;\ \Theta,\{\}\ \xRightarrow{*}\ \term{throw}\ N;\ \Theta',\Delta'}{\ctxP{\term{atomically}\ M};\ \Theta\ \rightarrow\ \ctxP{\term{throw}\ N};\ \Theta \cup \Delta'}[\rul{ATHROW}]
+\end{adjustbox}

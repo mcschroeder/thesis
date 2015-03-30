@@ -1,0 +1,4 @@
+_build/
+_shake/
+
+.DS_Store
