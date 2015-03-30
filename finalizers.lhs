@@ -341,8 +341,7 @@ The changes necessary to add finalizers to GHC's STM implementation are surprisi
 Before describing them I will once again first give a brief overview of the status quo.
 To avoid getting bogged down in minutiae, my description of the existing implementation will be a careful simplification, focusing only on the relevant parts of the system.
 The interested reader is referred to the STM Commentary \parencite{yates-2013} for a more thorough description, and to the GHC source code itself for all the gory details.\footnote{\url{http://git.haskell.org/ghc.git}}
-A fork of GHC containing the changes described in this section is available at \url{http://github.com/mcschroeder/ghc-stm-finalizers}.
-%TODO url reference
+A fork of GHC containing the changes described in this section is available at \url{http://github.com/mcschroeder/ghc}.
 
 %------------------------------------------------------------
 
