@@ -33,8 +33,7 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
-%TODO default is 12pt. change necessary?
-\setlength{\headheight}{14pt} 
+\setlength{\headheight}{15pt} 
 
 \renewcommand{\chaptermark}[1]{
   \ifnum\value{chapter}>0
@@ -71,7 +70,13 @@
 % biblatex
 %---------------------------------------------------
 \usepackage[style=authoryear,backref=true,backend=biber]{biblatex}
+
+% for american-style quotes
+\usepackage[american]{babel}
 \usepackage[english=american]{csquotes}
+\renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+\renewcommand*{\mkcitation}{}
+
 \addbibresource{thesis.bib}
 %TODO correct proceedings cite
 
@@ -131,4 +136,5 @@
 %---------------------------------------------------
 % Hackage packages
 %---------------------------------------------------
+%TODO: optional version
 \newcommand{\package}[1]{\href{http://hackage.haskell.org/package/#1}{\texttt{#1}}}

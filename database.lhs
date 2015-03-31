@@ -302,7 +302,7 @@ data DatabaseHandle s d = DatabaseHandle
 For the social network example, I implemented binary serialization to an append-only log file, using the \package{cereal} \parencite{kolmodin-et-al-2013} and \package{safecopy} \parencite{himmelstrup-lessa-2014} libraries.
 %TODO footnote location of LogFile module
 The user of this particular storage backend can obtain a |DatabaseHandle| by calling a function named |openDatabase|, which deserializes and replays a previously recorded database log, if available, and then prepares the log file for further serialization.
-Its implementation is given below\footnote{The full module can be found in the sample code under \texttt{tx1/TX/LogFile.hs}}.
+Its implementation is given below.\footnote{The full module can be found in the sample code under \texttt{tx1/TX/LogFile.hs}}
 Note how the |SafeCopy| class constraint on |Operation| is local to this storage module; |Database| and the |TX| operations can stay completely agnostic as to how serialization is actually done.
 %{
 %format fp = "\Varid{fp}"

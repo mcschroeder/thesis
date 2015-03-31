@@ -133,7 +133,7 @@ Most of the STM rules are quite standard.
 Note how \rul{NEW} makes allocation effects explicit by modifying $\Delta$.
 
 % or1-3
-The rules \rul{OR1-3} handle the kind of nested transactions made possible by the \term{orElse} combinator\footnote{Not to be confused with the nesting of \term{atomically} calls described in \Cref{subsec:stm-example-nesting}}.
+The rules \rul{OR1-3} handle the kind of nested transactions made possible by the \term{orElse} combinator.\footnote{Not to be confused with the nesting of \term{atomically} calls described in \Cref{subsec:stm-example-nesting}}
 When encountering a term of the form $M_1\ \term{orElse}\ M_2$ we always begin by inspecting the left branch $M_1$.
 If this evaluates to a \term{return} \rul{OR1} or a \term{throw} \rul{OR2}, the result is propagated and all memory effects are retained.
 Keep in mind that we are still on the STM level.

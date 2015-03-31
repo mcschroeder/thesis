@@ -204,7 +204,7 @@ atomicallyWithIO  (do  n <- readTVar counter
                   )
 \end{code}
 %}
-The function |concurrently :: IO a -> IO b -> IO (a,b)| is exported by the \package{async} library \parencite{marlow-2013-async}, which provides ``a set of operations for running IO operations asynchronously and waiting for their results''.
+The function |concurrently :: IO a -> IO b -> IO (a,b)| is exported by the \package{async} library \parencite{marlow-2013-async}, which provides \textquote{a set of operations for running IO operations asynchronously and waiting for their results}.
 The library is implemented using STM.
 When executing |concurrently|, there are actually multiple atomic transactions happening behind the scenes.
 
@@ -241,11 +241,11 @@ The variable can be read safely -- a deadlock only happens if an inner transacti
 
 % onCommit
 Extending Haskell's STM to allow safe combination of atomic blocks with I/O actions has been proposed from the very beginning.
-In a 2006 post on the \texttt{haskell-cafe} mailing list\footnote{\url{http://www.haskell.org/pipermail/haskell-cafe/2006-November/019771.html}}, Simon Peyton Jones suggested an operator
+In a 2006 post on the \texttt{haskell-cafe} mailing list, Simon Peyton Jones suggested an operator
 \begin{code}
  onCommit :: IO a -> STM ()
 \end{code}
-that \textquote{would queue up an IO action to be performed when the transaction commits}.
+that \textquote{would queue up an IO action to be performed when the transaction commits}.\footnote{\url{http://www.haskell.org/pipermail/haskell-cafe/2006-November/019771.html}}
 The \package{stm-io-hooks} package \parencite{robinson-kuklewicz-2012} implements this operator in a custom STM monad that is meant as drop-in replacement for the system one.
 |onCommit| has the same semantics as |atomicallyWithIO|: \textquote{The commit IO action will be executed iff the transaction commits.}
 The difference is that |onCommit| is truly composable.

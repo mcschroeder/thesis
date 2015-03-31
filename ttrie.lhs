@@ -51,7 +51,7 @@ Since looking up an account from the |Map| involves a |readTVar| operation, the 
 The drawback of this pattern of simply wrapping a |Map| inside a |TVar| is that when adding or removing elements of the |Map|, one has to replace the |Map| inside the |TVar| wholesale.
 Thus all concurrently running transactions that have accessed the |Map| become invalid and will have to restart once they try to commit.
 Depending on the exact access patterns, this can be a serious cause of contention.
-For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.4 millions retries\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}}.
+For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.4 millions retries.\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}}
 That is some serious overhead!
 
 The underlying problem is that the whole |Map| is made transactional, when we only ever care about the subset of the |Map| that is relevant to the current transaction.
@@ -472,6 +472,7 @@ They are described in great detail by \textcite{prokopec-et-al-2012} and are inc
 \section{Evaluation}
 \label{sec:ttrie-evaluation}
 %TODO layout of figures so that relevant text faces the figure page?
+%TODO: link packages here to exact version tested
 
 I empirically evaluated the transactional trie against similar data structures, measuring contention, runtime performance and memory allocation.
 The benchmarks were run on an Amazon EC2 C3 extra-large instance with Intel Xeon E5-2680 v2 (Ivy Bridge) processors and a total of 16 physical cores.
