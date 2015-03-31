@@ -69,7 +69,7 @@
 %---------------------------------------------------
 % biblatex
 %---------------------------------------------------
-\usepackage[style=authoryear,backref=true,backend=biber]{biblatex}
+\usepackage[style=authoryear,backref=true,backend=biber,maxbibnames=4]{biblatex}
 
 % for american-style quotes
 \usepackage[american]{babel}
