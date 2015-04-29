@@ -74,7 +74,7 @@ ROW3 = "set tmargin at screen 0.4; set bmargin at screen 0.2"
 
 @ROW1
 
-set title "100\\% insert"
+set title "insert"
 set ylabel "time"
 set format y "%.0s %cs"
 @COL1
@@ -83,17 +83,17 @@ plot file("insert","time") @POINTS
 unset ylabel
 set format y ""
 
-set title "100\\% update"
+set title "update"
 @COL2
 @SET_TIME_PLOT
 plot file("update","time") @POINTS
 
-set title "100\\% lookup"
+set title "lookup"
 @COL3
 @SET_TIME_PLOT
 plot file("lookup","time") @POINTS
 
-set title "100\\% delete"
+set title "delete"
 @COL4
 @SET_TIME_PLOT
 plot file("delete","time") @POINTS

@@ -476,18 +476,18 @@ They are described in great detail by \textcite{prokopec-et-al-2012} and are inc
 
 I empirically evaluated the transactional trie against similar data structures, measuring contention, runtime performance and memory allocation.
 The benchmarks were run on an Amazon EC2 C3 extra-large instance with Intel Xeon E5-2680 v2 (Ivy Bridge) processors and a total of 16 physical cores.
-Under comparison were a transactional trie; a |HashMap| from the \package{unordered-containers} library \parencite{tibell-yang-2014}, wrapped inside a |TVar|; and the STM-specialized hash array mapped trie from the \package{stm-containers} library \parencite{volkov-2014a}.
+Under comparison were three hashing-based container types: a transactional trie; a |HashMap| from the \package{unordered-containers} library \parencite{tibell-yang-2014}, wrapped inside a |TVar|; and the STM-specialized hash array mapped trie from the \package{stm-containers} library \parencite{volkov-2014a}.
 
-Each benchmark performs a number of random STM transactions involving one of the container types.
-The benchmarks differ in size and composition of the transactions.
-In all cases, the keys used for operations on the containers are random |Text| strings and the values simply |()|, except for the \package{unordered-containers} case, were the exact type of container is |TVar (HashMap Text (TVar ()))|.
+Each benchmark consists of a number of random STM transactions.
+The benchmarks differ in the size and the composition of these transactions.
+Each benchmark is run on every container type, using the same random |Text| strings as keys each time.
 The benchmarks are run multiple times, using an increasing number of threads.
 The transactions are split evenly over the number of threads in use.
 The time it takes to complete all transactions for a particular container is measured using the \package{criterion} and \package{criterion-plus} libraries \parencite{osullivan-2014,volkov-2014b}, which calculate the mean execution time over many iterations.
 To measure contention, the transactions are run again using the \package{stm-stats} library \parencite{leuschner-et-al-2011} to count how often the STM runtime system had to restart transactions due to conflicts.
 Finally, the transactions are run once more to measure the total amount of allocated memory, using GHCs built-in facilities for collecting memory usage statistics.
 All benchmarks were compiled using GHC 7.8.3.
-For more details about test data generation and the finer points of the benchmark setup, see the \package{ttrie} source distribution.
+For more details about test data generation and the exact benchmark setup, see the \package{ttrie} source distribution.
 
 \begin{figure}
 \centering
@@ -525,15 +525,15 @@ It is twice as fast as \package{stm-containers} during update and delete, and ab
 
 \bigskip
 For the second set of benchmarks (\Cref{fig:bench-overview-5}), transactions are no longer just a single operation, but a mix of up to 5 operations.
-The insert benchmark now consists of 70\% inserts, 10\% updates, 10\% lookups and 10\% deletes; the update benchmark of 10\% inserts, 70\% updates, 10\% lookups and 10\% deletes; the lookup benchmark of 10\% inserts, 10\% updates, /0\% lookups and 10\% deletes; and the delete benchmark of 10\% inserts, 10\% updates, 10\% lookups and 70\% deletes.
-The insert benchmark again starts out with an empty container, while the other benchmarks operate on containers now prefilled with \num{1 000 000} entries.
 Using transactions of varying sizes and with different compositions much closer reflects real-world usage.
+The insert benchmark now consists of 70\% inserts, with the remaining 30\% evenly distributed among updates, lookups and deletes.
+Likewise, the update benchmark now consists of 70\% updates, the lookup benchmark of 70\% lookups and the delete benchmark of 70\% deletes.
+The insert benchmark again starts out with an empty container, while the other benchmarks operate on containers prefilled with \num{1 000 000} entries.
 
-As expected, legitimate conflicts between transactions are now slightly more common, evidenced by the increased number of retries measured for the transactional trie, but they still amount to less than a dozen in the worst case.
+As expected, legitimate conflicts between transactions are now slightly more common, evidenced by the increased number of retries measured for the transactional trie, but they still amount to less than a dozen in the worst case, all spurious.
 In comparison, \package{unordered-containers} causes more than \num{1.3} million retries in the worst case.
-By incorporating, to varying degrees, all operation types in each benchmark, the different benchmarks are now much closer in results than before.
-The edges are smoothed out, so to speak.
-Consequently, the transactional trie now always outperforms the other container types, on both time and memory, and with a greater lead.
+By incorporating, every type of operation in each benchmark, to varying degrees, the different benchmarks are now much closer in results than before.
+Consequently, the transactional trie now consistently outperforms the other container types on all benchmarks, on both time and memory, and with a greater lead.
 The sole exception is the insert benchmark, where runtime performance is virtually identical to that of \package{stm-containers}.
 
 \begin{figure}
@@ -548,7 +548,7 @@ under comparison: \red{\textbf{ttrie}}, \blue{\textbf{stm-containers}}, \green{\
 \end{figure}
 
 \bigskip
-The last benchmark (\Cref{fig:bench-detail-balanced}) again measures \num{200 000} transactions, each up to 5 operations long, but now with a balanced mix of 25\% inserts, 25\% updates, 25\% lookups and 25\% deletes, on containers prefilled with \num{1 000 000} entries.
+The last benchmark (\Cref{fig:bench-detail-balanced}) consists of a balanced mix of 25\% of each operation, on containers prefilled with \num{1 000 000} entries.
 
 This kind of benchmark plays to the strengths of the transactional trie:
 it is 2--4 times faster than \package{stm-containers}, allocating only a third of the memory; and 4--30 times faster than \package{unordered-containers}, allocating almost 20 times less memory.
