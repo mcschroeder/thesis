@@ -1,6 +1,7 @@
 %include thesis.fmt
 
 \chapter{STM as a database language}
+\label{chap:database}
 
 As a qualitative demonstration of the effectiveness of finalizers, I now present a reusable framework for constructing lightweight databases.
 This is a continuation of my previous work on the \package{tx} library \parencite{schroeder-2013}, which was the original motivation for finalizers.
@@ -193,7 +194,7 @@ createPost author body = do
     postId <- liftSTM $ newUniquePostId db
     time <- unsafeIOToTX getCurrentTime
     record $ NewPost postId (name author) time body
-    liftSTM $ newPost postId author time body
+    liftSTM $ newPost postId author time body db
 \end{code}
 %}
 Notice that the |TX| version of |createPost| is virtually identical to the pure STM version, save for a few lifts and the call to |record|.
@@ -233,6 +234,7 @@ In our case, the |Database| instance of |SocialDB| defines |Operation SocialDB|,
 The constructors of |Operation SocialDB| represent the functions that recorded them.
 For example, the |Follow| and |NewPost| constructors represent the |follow| and |newPost| functions:
 %{
+%format db = "\Varid{db}"
 %format user = "\Varid{user}"
 %format user1
 %format user2
@@ -255,8 +257,9 @@ instance Database SocialDB where
         user1 `follow` user2
 
     replay (NewPost postId name time body) = do
+        db <- getData
         author <- getUser name
-        void $ newPost postId author time body
+        liftSTM $ void $ newPost postId author time body db
 \end{code}
 %}
 So the |follow| function |record|s the |Follow| type and |replay|ing the |Follow| type causes the |follow| function to be called again.
