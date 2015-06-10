@@ -2,12 +2,12 @@ file(op,type)=sprintf("1/%s-%s.dat",op,type)
 num_tx=200000
 num_threads=9
 
-time_min=0.02 #0.02430831
-time_max=1.450114
+time_min=0.007 #0.007870899
+time_max=1 #0.9303171
 retries_min=1
-retries_max=1106632
-alloc_min=40e6 #44298312
-alloc_max=1227650104
+retries_max=1110176
+alloc_min=45e5 #4808840
+alloc_max=1059603928
 
 #----------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ SET_RETRIES_PLOT = "set style data histogram; \
 SET_ALLOC_PLOT = "set style data linespoint; \
                   set logscale y 2; \
                   set yrange[alloc_min:alloc_max]; \
-                  set ytics (62.5e6, 125e6, 250e6, 500e6, 1e9); \
+                  set ytics (5e6, 125e6, 250e6, 500e6, 1e9); \
                   set ytics nomirror"
 
 left_margin=0.2
@@ -116,7 +116,7 @@ plot file("update","retries") @POINTS, num_tx ls 4 lt 0
 
 @COL3
 @SET_RETRIES_PLOT
-plot file("lookup","retries") @POINTS
+plot file("lookup","retries") @POINTS, num_tx ls 4 lt 0
 
 @COL4
 @SET_RETRIES_PLOT

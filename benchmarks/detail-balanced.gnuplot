@@ -2,12 +2,12 @@ file(op,type)=sprintf("5/%s-%s.dat",op,type)
 num_tx=200000
 num_threads=9
 
-time_min=0.1 #0.1269870
-time_max=5.016244
+time_min=0.1 #0.1300471
+time_max=2.629407
 retries_min=1
-retries_max=1440539
+retries_max=1134936
 alloc_min=200e6 #252606664
-alloc_max=4852973968
+alloc_max=2753618256
 
 #----------------------------------------------------------------------
 

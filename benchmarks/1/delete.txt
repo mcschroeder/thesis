@@ -1,6 +1,6 @@
-Preprocessing library ttrie-0.1.0.0...
-In-place registering ttrie-0.1.0.0...
-Preprocessing benchmark 'bench' for ttrie-0.1.0.0...
+Preprocessing library ttrie-0.1.2...
+In-place registering ttrie-0.1.2...
+Preprocessing benchmark 'bench' for ttrie-0.1.2...
 Running 1 benchmarks...
 Benchmark bench: RUNNING...
 threads = [1,2,4,6,8,10,12,14,16]
@@ -12,320 +12,321 @@ Generating 200000 random keys to prefill...
 Generating 200000 random transactions...
 warming up
 estimating clock resolution...
-mean is 1.639115 us (320001 iterations)
-found 562595 outliers among 319999 samples (175.8%)
-  245755 (76.8%) low severe
-  316840 (99.0%) high severe
+mean is 3.138039 us (160001 iterations)
+found 3637 outliers among 159999 samples (2.3%)
+  3008 (1.9%) high severe
 estimating cost of a clock call...
-mean is 194.6988 ns (11 iterations)
+mean is 814.9362 ns (20 iterations)
 
 Running a subject "1/200000/unordered-containers"
-mean: 905.3432 ms, lower bound: 888.2468 ms, upper bound: 926.7725 ms, confidence: 0.950
-std dev: 97.55928 ms, lower bound: 78.48524 ms, upper bound: 124.0284 ms, confidence: 0.950
-found 7 outliers among 100 samples (7.0%)
-  6 (6.0%) high mild
-  1 (1.0%) high severe
-variance introduced by outliers: 82.073%
+mean: 667.4638 ms, lower bound: 655.8751 ms, upper bound: 683.8521 ms, confidence: 0.950
+std dev: 70.22969 ms, lower bound: 51.67188 ms, upper bound: 100.5760 ms, confidence: 0.950
+found 6 outliers among 100 samples (6.0%)
+  2 (2.0%) high mild
+  3 (3.0%) high severe
+variance introduced by outliers: 81.051%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 181069568
+allocated bytes: 144787584
 
 Running a subject "1/200000/stm-containers"
-mean: 610.4982 ms, lower bound: 605.3373 ms, upper bound: 616.5638 ms, confidence: 0.950
-std dev: 28.74495 ms, lower bound: 22.91492 ms, upper bound: 42.36445 ms, confidence: 0.950
-found 5 outliers among 100 samples (5.0%)
-  4 (4.0%) low mild
+mean: 737.5347 ms, lower bound: 731.1904 ms, upper bound: 745.1666 ms, confidence: 0.950
+std dev: 35.62505 ms, lower bound: 28.74938 ms, upper bound: 49.96560 ms, confidence: 0.950
+found 3 outliers among 100 samples (3.0%)
   1 (1.0%) high severe
-variance introduced by outliers: 45.443%
+variance introduced by outliers: 46.457%
 variance is moderately inflated by outliers
 commits: 200000
 retries: 0
 allocated bytes: 259591032
 
 Running a subject "1/200000/ttrie"
-mean: 278.6139 ms, lower bound: 275.2990 ms, upper bound: 283.7143 ms, confidence: 0.950
-std dev: 20.69585 ms, lower bound: 15.03502 ms, upper bound: 35.54239 ms, confidence: 0.950
-found 2 outliers among 100 samples (2.0%)
-  1 (1.0%) high severe
-variance introduced by outliers: 67.652%
+mean: 324.7156 ms, lower bound: 319.0471 ms, upper bound: 342.8565 ms, confidence: 0.950
+std dev: 46.99806 ms, lower bound: 16.85918 ms, upper bound: 104.3692 ms, confidence: 0.950
+found 7 outliers among 100 samples (7.0%)
+  3 (3.0%) high mild
+  4 (4.0%) high severe
+variance introduced by outliers: 89.396%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
 allocated bytes: 69999008
 
 Running a subject "2/100000/unordered-containers"
-mean: 831.6441 ms, lower bound: 814.6700 ms, upper bound: 848.1501 ms, confidence: 0.950
-std dev: 86.01439 ms, lower bound: 78.73736 ms, upper bound: 94.83769 ms, confidence: 0.950
-variance introduced by outliers: 80.042%
+mean: 574.9885 ms, lower bound: 561.0055 ms, upper bound: 589.4336 ms, confidence: 0.950
+std dev: 73.25502 ms, lower bound: 66.96866 ms, upper bound: 87.17393 ms, confidence: 0.950
+variance introduced by outliers: 86.271%
 variance is severely inflated by outliers
 commits: 200000
-retries: 193888
-allocated bytes: 318371368
+retries: 188047
+allocated bytes: 276250504
 
 Running a subject "2/100000/stm-containers"
-mean: 318.0070 ms, lower bound: 311.3736 ms, upper bound: 326.6344 ms, confidence: 0.950
-std dev: 38.59056 ms, lower bound: 30.85958 ms, upper bound: 52.03254 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
+mean: 379.0461 ms, lower bound: 374.1990 ms, upper bound: 385.2456 ms, confidence: 0.950
+std dev: 27.96492 ms, lower bound: 22.65339 ms, upper bound: 37.16294 ms, confidence: 0.950
+found 3 outliers among 100 samples (3.0%)
   3 (3.0%) high mild
-  1 (1.0%) high severe
-variance introduced by outliers: 85.215%
+variance introduced by outliers: 67.633%
 variance is severely inflated by outliers
 commits: 200000
-retries: 66
-allocated bytes: 259711768
+retries: 36
+allocated bytes: 259702392
 
 Running a subject "2/100000/ttrie"
-mean: 153.9912 ms, lower bound: 150.7543 ms, upper bound: 159.2574 ms, confidence: 0.950
-std dev: 20.79209 ms, lower bound: 14.54967 ms, upper bound: 30.79532 ms, confidence: 0.950
-found 14 outliers among 100 samples (14.0%)
-  5 (5.0%) low mild
-  4 (4.0%) high mild
-  5 (5.0%) high severe
-variance introduced by outliers: 87.336%
+mean: 172.4585 ms, lower bound: 166.4673 ms, upper bound: 183.4078 ms, confidence: 0.950
+std dev: 40.37223 ms, lower bound: 26.80455 ms, upper bound: 72.22055 ms, confidence: 0.950
+found 15 outliers among 100 samples (15.0%)
+  9 (9.0%) high mild
+  6 (6.0%) high severe
+variance introduced by outliers: 95.737%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70005864
+allocated bytes: 70011048
 
 Running a subject "4/50000/unordered-containers"
-mean: 808.5619 ms, lower bound: 791.9044 ms, upper bound: 830.4460 ms, confidence: 0.950
-std dev: 98.23124 ms, lower bound: 76.81260 ms, upper bound: 128.9350 ms, confidence: 0.950
+mean: 575.3610 ms, lower bound: 565.2269 ms, upper bound: 588.3222 ms, confidence: 0.950
+std dev: 58.43706 ms, lower bound: 46.15397 ms, upper bound: 76.69384 ms, confidence: 0.950
+found 20 outliers among 100 samples (20.0%)
+  2 (2.0%) low severe
+  7 (7.0%) low mild
+  3 (3.0%) high mild
+  8 (8.0%) high severe
+variance introduced by outliers: 80.006%
+variance is severely inflated by outliers
+commits: 200000
+retries: 450435
+allocated bytes: 527013048
+
+Running a subject "4/50000/stm-containers"
+mean: 219.8840 ms, lower bound: 212.9854 ms, upper bound: 239.5085 ms, confidence: 0.950
+std dev: 54.61835 ms, lower bound: 21.61310 ms, upper bound: 115.5361 ms, confidence: 0.950
+found 10 outliers among 100 samples (10.0%)
+  3 (3.0%) low mild
+  3 (3.0%) high mild
+  4 (4.0%) high severe
+variance introduced by outliers: 96.762%
+variance is severely inflated by outliers
+commits: 200000
+retries: 170
+allocated bytes: 260013304
+
+Running a subject "4/50000/ttrie"
+mean: 97.89919 ms, lower bound: 94.05056 ms, upper bound: 104.7798 ms, confidence: 0.950
+std dev: 25.52378 ms, lower bound: 16.23970 ms, upper bound: 38.19649 ms, confidence: 0.950
+found 9 outliers among 100 samples (9.0%)
+  8 (8.0%) high severe
+variance introduced by outliers: 96.784%
+variance is severely inflated by outliers
+commits: 200000
+retries: 0
+allocated bytes: 70015544
+
+Running a subject "6/33333/unordered-containers"
+mean: 604.3267 ms, lower bound: 596.8837 ms, upper bound: 610.7727 ms, confidence: 0.950
+std dev: 35.38187 ms, lower bound: 29.19114 ms, upper bound: 44.40664 ms, confidence: 0.950
+found 5 outliers among 100 samples (5.0%)
+  4 (4.0%) low mild
+variance introduced by outliers: 56.467%
+variance is severely inflated by outliers
+commits: 200000
+retries: 706124
+allocated bytes: 711534800
+
+Running a subject "6/33333/stm-containers"
+mean: 145.1190 ms, lower bound: 142.6466 ms, upper bound: 148.6581 ms, confidence: 0.950
+std dev: 15.00797 ms, lower bound: 11.32635 ms, upper bound: 22.22216 ms, confidence: 0.950
 found 6 outliers among 100 samples (6.0%)
   2 (2.0%) high mild
   4 (4.0%) high severe
-variance introduced by outliers: 85.217%
+variance introduced by outliers: 80.041%
 variance is severely inflated by outliers
 commits: 200000
-retries: 556657
-allocated bytes: 583434256
-
-Running a subject "4/50000/stm-containers"
-mean: 176.6916 ms, lower bound: 171.0521 ms, upper bound: 185.8854 ms, confidence: 0.950
-std dev: 36.32484 ms, lower bound: 25.72661 ms, upper bound: 56.82526 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
-  3 (3.0%) high severe
-variance introduced by outliers: 94.666%
-variance is severely inflated by outliers
-commits: 200000
-retries: 151
-allocated bytes: 259892792
-
-Running a subject "4/50000/ttrie"
-mean: 78.40475 ms, lower bound: 77.20855 ms, upper bound: 81.80272 ms, confidence: 0.950
-std dev: 9.502537 ms, lower bound: 3.798679 ms, upper bound: 20.17393 ms, confidence: 0.950
-found 10 outliers among 100 samples (10.0%)
-  4 (4.0%) low mild
-  2 (2.0%) high mild
-  4 (4.0%) high severe
-variance introduced by outliers: 85.213%
-variance is severely inflated by outliers
-commits: 200000
-retries: 0
-allocated bytes: 70011320
-
-Running a subject "6/33333/unordered-containers"
-mean: 860.1028 ms, lower bound: 848.3427 ms, upper bound: 873.0794 ms, confidence: 0.950
-std dev: 63.13025 ms, lower bound: 54.80202 ms, upper bound: 76.75465 ms, confidence: 0.950
-found 1 outliers among 100 samples (1.0%)
-variance introduced by outliers: 66.659%
-variance is severely inflated by outliers
-commits: 200000
-retries: 669781
-allocated bytes: 690651752
-
-Running a subject "6/33333/stm-containers"
-mean: 128.9249 ms, lower bound: 126.5869 ms, upper bound: 132.7875 ms, confidence: 0.950
-std dev: 15.05800 ms, lower bound: 10.09489 ms, upper bound: 21.60189 ms, confidence: 0.950
-found 11 outliers among 100 samples (11.0%)
-  6 (6.0%) high mild
-  5 (5.0%) high severe
-variance introduced by outliers: 84.172%
-variance is severely inflated by outliers
-commits: 200000
-retries: 268
-allocated bytes: 260071864
+retries: 326
+allocated bytes: 260068368
 
 Running a subject "6/33333/ttrie"
-mean: 55.41358 ms, lower bound: 54.66556 ms, upper bound: 57.00434 ms, confidence: 0.950
-std dev: 5.310309 ms, lower bound: 3.106281 ms, upper bound: 10.10913 ms, confidence: 0.950
-found 13 outliers among 100 samples (13.0%)
-  6 (6.0%) high mild
-  7 (7.0%) high severe
-variance introduced by outliers: 77.938%
+mean: 65.93338 ms, lower bound: 64.27917 ms, upper bound: 70.14551 ms, confidence: 0.950
+std dev: 12.50251 ms, lower bound: 6.175889 ms, upper bound: 25.90878 ms, confidence: 0.950
+found 11 outliers among 100 samples (11.0%)
+  3 (3.0%) high mild
+  8 (8.0%) high severe
+variance introduced by outliers: 93.616%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70032272
+allocated bytes: 70029800
 
 Running a subject "8/25000/unordered-containers"
-mean: 962.1763 ms, lower bound: 946.8907 ms, upper bound: 978.9682 ms, confidence: 0.950
-std dev: 82.10793 ms, lower bound: 72.16603 ms, upper bound: 93.63999 ms, confidence: 0.950
-variance introduced by outliers: 73.793%
+mean: 650.8321 ms, lower bound: 643.6666 ms, upper bound: 658.0508 ms, confidence: 0.950
+std dev: 36.85077 ms, lower bound: 33.23028 ms, upper bound: 41.33089 ms, confidence: 0.950
+variance introduced by outliers: 54.472%
 variance is severely inflated by outliers
 commits: 200000
-retries: 841695
-allocated bytes: 744676096
+retries: 818397
+allocated bytes: 689656152
 
 Running a subject "8/25000/stm-containers"
-mean: 93.17496 ms, lower bound: 90.93348 ms, upper bound: 96.19841 ms, confidence: 0.950
-std dev: 13.22544 ms, lower bound: 10.31797 ms, upper bound: 18.33338 ms, confidence: 0.950
-found 8 outliers among 100 samples (8.0%)
-  5 (5.0%) high mild
-  3 (3.0%) high severe
-variance introduced by outliers: 88.386%
+mean: 120.3560 ms, lower bound: 119.2893 ms, upper bound: 122.2825 ms, confidence: 0.950
+std dev: 7.134595 ms, lower bound: 4.595765 ms, upper bound: 13.40137 ms, confidence: 0.950
+found 3 outliers among 100 samples (3.0%)
+  2 (2.0%) high mild
+  1 (1.0%) high severe
+variance introduced by outliers: 56.504%
 variance is severely inflated by outliers
 commits: 200000
-retries: 436
-allocated bytes: 260193640
+retries: 404
+allocated bytes: 260274544
 
 Running a subject "8/25000/ttrie"
-mean: 43.08010 ms, lower bound: 42.41267 ms, upper bound: 44.36287 ms, confidence: 0.950
-std dev: 4.603305 ms, lower bound: 2.758283 ms, upper bound: 7.272791 ms, confidence: 0.950
-found 12 outliers among 100 samples (12.0%)
-  4 (4.0%) high mild
-  8 (8.0%) high severe
-variance introduced by outliers: 81.080%
+mean: 51.53505 ms, lower bound: 49.86711 ms, upper bound: 57.67485 ms, confidence: 0.950
+std dev: 14.34351 ms, lower bound: 2.646091 ms, upper bound: 32.77588 ms, confidence: 0.950
+found 5 outliers among 100 samples (5.0%)
+  2 (2.0%) high mild
+  3 (3.0%) high severe
+variance introduced by outliers: 96.810%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70036656
+allocated bytes: 70030320
 
 Running a subject "10/20000/unordered-containers"
-mean: 1.026228 s, lower bound: 1.007839 s, upper bound: 1.046538 s, confidence: 0.950
-std dev: 99.39643 ms, lower bound: 87.00131 ms, upper bound: 120.6020 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
-  4 (4.0%) high mild
-variance introduced by outliers: 77.961%
+mean: 721.5409 ms, lower bound: 713.3370 ms, upper bound: 730.4858 ms, confidence: 0.950
+std dev: 44.14433 ms, lower bound: 37.03089 ms, upper bound: 59.08458 ms, confidence: 0.950
+found 5 outliers among 100 samples (5.0%)
+  3 (3.0%) low mild
+  1 (1.0%) high severe
+variance introduced by outliers: 58.497%
 variance is severely inflated by outliers
 commits: 200000
-retries: 884948
-allocated bytes: 822732240
+retries: 842515
+allocated bytes: 759260560
 
 Running a subject "10/20000/stm-containers"
-mean: 76.60491 ms, lower bound: 75.01947 ms, upper bound: 79.37275 ms, confidence: 0.950
-std dev: 10.53043 ms, lower bound: 6.960495 ms, upper bound: 16.75354 ms, confidence: 0.950
-found 20 outliers among 100 samples (20.0%)
-  5 (5.0%) high mild
-  15 (15.0%) high severe
-variance introduced by outliers: 88.345%
+mean: 94.46405 ms, lower bound: 93.12477 ms, upper bound: 96.46551 ms, confidence: 0.950
+std dev: 8.227506 ms, lower bound: 6.040965 ms, upper bound: 12.45033 ms, confidence: 0.950
+found 5 outliers among 100 samples (5.0%)
+  3 (3.0%) high mild
+  2 (2.0%) high severe
+variance introduced by outliers: 73.841%
 variance is severely inflated by outliers
 commits: 200000
-retries: 630
-allocated bytes: 260378096
+retries: 521
+allocated bytes: 260420424
 
 Running a subject "10/20000/ttrie"
-mean: 37.35066 ms, lower bound: 36.19097 ms, upper bound: 40.73385 ms, confidence: 0.950
-std dev: 9.249779 ms, lower bound: 3.778324 ms, upper bound: 19.88503 ms, confidence: 0.950
+mean: 41.59957 ms, lower bound: 40.91017 ms, upper bound: 42.86647 ms, confidence: 0.950
+std dev: 4.664363 ms, lower bound: 2.816095 ms, upper bound: 7.466691 ms, confidence: 0.950
 found 7 outliers among 100 samples (7.0%)
-  4 (4.0%) high mild
-  3 (3.0%) high severe
-variance introduced by outliers: 96.760%
+  3 (3.0%) high mild
+  4 (4.0%) high severe
+variance introduced by outliers: 83.123%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70041704
+allocated bytes: 70044200
 
 Running a subject "12/16666/unordered-containers"
-mean: 1.079919 s, lower bound: 1.059576 s, upper bound: 1.121764 s, confidence: 0.950
-std dev: 143.8081 ms, lower bound: 85.40276 ms, upper bound: 280.6692 ms, confidence: 0.950
+mean: 748.9600 ms, lower bound: 734.1706 ms, upper bound: 763.9500 ms, confidence: 0.950
+std dev: 76.51008 ms, lower bound: 68.06738 ms, upper bound: 90.19215 ms, confidence: 0.950
+found 1 outliers among 100 samples (1.0%)
+variance introduced by outliers: 80.018%
+variance is severely inflated by outliers
+commits: 200000
+retries: 947512
+allocated bytes: 812602792
+
+Running a subject "12/16666/stm-containers"
+mean: 84.63929 ms, lower bound: 81.86586 ms, upper bound: 92.25093 ms, confidence: 0.950
+std dev: 21.71398 ms, lower bound: 9.650454 ms, upper bound: 46.09558 ms, confidence: 0.950
+found 5 outliers among 100 samples (5.0%)
+  4 (4.0%) high severe
+variance introduced by outliers: 96.777%
+variance is severely inflated by outliers
+commits: 200000
+retries: 720
+allocated bytes: 260718440
+
+Running a subject "12/16666/ttrie"
+mean: 35.75546 ms, lower bound: 34.92368 ms, upper bound: 37.36314 ms, confidence: 0.950
+std dev: 5.707362 ms, lower bound: 3.610799 ms, upper bound: 9.920841 ms, confidence: 0.950
+found 15 outliers among 100 samples (15.0%)
+  6 (6.0%) high mild
+  9 (9.0%) high severe
+variance introduced by outliers: 91.481%
+variance is severely inflated by outliers
+commits: 200000
+retries: 0
+allocated bytes: 70046912
+
+Running a subject "14/14285/unordered-containers"
+mean: 813.8393 ms, lower bound: 799.1822 ms, upper bound: 828.1597 ms, confidence: 0.950
+std dev: 73.91416 ms, lower bound: 64.68378 ms, upper bound: 88.06643 ms, confidence: 0.950
+found 2 outliers among 100 samples (2.0%)
+variance introduced by outliers: 75.877%
+variance is severely inflated by outliers
+commits: 200000
+retries: 1110176
+allocated bytes: 915938552
+
+Running a subject "14/14285/stm-containers"
+mean: 75.17666 ms, lower bound: 73.30458 ms, upper bound: 77.63156 ms, confidence: 0.950
+std dev: 10.95322 ms, lower bound: 8.820691 ms, upper bound: 15.09427 ms, confidence: 0.950
 found 5 outliers among 100 samples (5.0%)
   4 (4.0%) high mild
   1 (1.0%) high severe
-variance introduced by outliers: 87.318%
+variance introduced by outliers: 89.404%
 variance is severely inflated by outliers
 commits: 200000
-retries: 915708
-allocated bytes: 861543408
-
-Running a subject "12/16666/stm-containers"
-mean: 67.86558 ms, lower bound: 66.30668 ms, upper bound: 69.92133 ms, confidence: 0.950
-std dev: 9.093549 ms, lower bound: 7.422207 ms, upper bound: 11.26744 ms, confidence: 0.950
-found 7 outliers among 100 samples (7.0%)
-  7 (7.0%) high mild
-variance introduced by outliers: 87.326%
-variance is severely inflated by outliers
-commits: 200000
-retries: 694
-allocated bytes: 260761776
-
-Running a subject "12/16666/ttrie"
-mean: 32.82920 ms, lower bound: 32.12287 ms, upper bound: 33.75102 ms, confidence: 0.950
-std dev: 4.111117 ms, lower bound: 3.213298 ms, upper bound: 5.359094 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
-  4 (4.0%) high mild
-variance introduced by outliers: 86.246%
-variance is severely inflated by outliers
-commits: 200000
-retries: 0
-allocated bytes: 70050400
-
-Running a subject "14/14285/unordered-containers"
-mean: 1.138830 s, lower bound: 1.118119 s, upper bound: 1.162653 s, confidence: 0.950
-std dev: 113.6604 ms, lower bound: 97.47707 ms, upper bound: 135.0275 ms, confidence: 0.950
-found 7 outliers among 100 samples (7.0%)
-  7 (7.0%) high mild
-variance introduced by outliers: 78.996%
-variance is severely inflated by outliers
-commits: 200000
-retries: 1020512
-allocated bytes: 914451128
-
-Running a subject "14/14285/stm-containers"
-mean: 64.18165 ms, lower bound: 62.47003 ms, upper bound: 66.26563 ms, confidence: 0.950
-std dev: 9.661342 ms, lower bound: 7.997414 ms, upper bound: 12.38793 ms, confidence: 0.950
-found 6 outliers among 100 samples (6.0%)
-  5 (5.0%) high mild
-  1 (1.0%) high severe
-variance introduced by outliers: 90.429%
-variance is severely inflated by outliers
-commits: 200000
-retries: 885
-allocated bytes: 260812920
+retries: 744
+allocated bytes: 260957904
 
 Running a subject "14/14285/ttrie"
-mean: 32.47676 ms, lower bound: 31.64432 ms, upper bound: 33.71646 ms, confidence: 0.950
-std dev: 5.142202 ms, lower bound: 3.735802 ms, upper bound: 6.958589 ms, confidence: 0.950
-found 20 outliers among 100 samples (20.0%)
-  7 (7.0%) low mild
-  5 (5.0%) high mild
+mean: 35.92031 ms, lower bound: 35.08590 ms, upper bound: 37.04265 ms, confidence: 0.950
+std dev: 4.923912 ms, lower bound: 3.872609 ms, upper bound: 6.170840 ms, confidence: 0.950
+found 10 outliers among 100 samples (10.0%)
+  2 (2.0%) high mild
   8 (8.0%) high severe
-variance introduced by outliers: 90.484%
+variance introduced by outliers: 88.341%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70051240
+allocated bytes: 70054696
 
 Running a subject "16/12500/unordered-containers"
-mean: 1.218906 s, lower bound: 1.191125 s, upper bound: 1.249805 s, confidence: 0.950
-std dev: 151.8211 ms, lower bound: 131.4144 ms, upper bound: 176.2775 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
+mean: 904.3497 ms, lower bound: 890.6643 ms, upper bound: 918.8003 ms, confidence: 0.950
+std dev: 72.09496 ms, lower bound: 60.91945 ms, upper bound: 87.94932 ms, confidence: 0.950
+found 7 outliers among 100 samples (7.0%)
+  2 (2.0%) low mild
   4 (4.0%) high mild
-variance introduced by outliers: 86.238%
+  1 (1.0%) high severe
+variance introduced by outliers: 70.725%
 variance is severely inflated by outliers
 commits: 200000
-retries: 1106632
-allocated bytes: 958146816
+retries: 1074543
+allocated bytes: 880649888
 
 Running a subject "16/12500/stm-containers"
-mean: 62.12922 ms, lower bound: 60.70670 ms, upper bound: 63.85487 ms, confidence: 0.950
-std dev: 8.039494 ms, lower bound: 6.846330 ms, upper bound: 9.726797 ms, confidence: 0.950
-found 3 outliers among 100 samples (3.0%)
-  3 (3.0%) high mild
-variance introduced by outliers: 86.294%
+mean: 71.11025 ms, lower bound: 69.67745 ms, upper bound: 72.75143 ms, confidence: 0.950
+std dev: 7.845869 ms, lower bound: 6.691429 ms, upper bound: 9.317364 ms, confidence: 0.950
+found 9 outliers among 100 samples (9.0%)
+  9 (9.0%) high mild
+variance introduced by outliers: 82.116%
 variance is severely inflated by outliers
 commits: 200000
-retries: 976
-allocated bytes: 261016080
+retries: 830
+allocated bytes: 260993768
 
 Running a subject "16/12500/ttrie"
-mean: 27.20865 ms, lower bound: 26.81548 ms, upper bound: 27.74399 ms, confidence: 0.950
-std dev: 2.322093 ms, lower bound: 1.790108 ms, upper bound: 3.130520 ms, confidence: 0.950
-found 4 outliers among 100 samples (4.0%)
-  3 (3.0%) high severe
-variance introduced by outliers: 73.793%
+mean: 32.51177 ms, lower bound: 31.06482 ms, upper bound: 35.71906 ms, confidence: 0.950
+std dev: 10.57311 ms, lower bound: 5.347605 ms, upper bound: 17.30491 ms, confidence: 0.950
+found 13 outliers among 100 samples (13.0%)
+  8 (8.0%) high mild
+  5 (5.0%) high severe
+variance introduced by outliers: 97.858%
 variance is severely inflated by outliers
 commits: 200000
 retries: 0
-allocated bytes: 70062304
+allocated bytes: 70064256
 Benchmark bench: FINISH

@@ -2,12 +2,12 @@ file(op,type)=sprintf("5/%s-%s.dat",op,type)
 num_tx=200000
 num_threads=9
 
-time_min=0.1 #0.1111001
-time_max=5.630342
+time_min=0.1 #0.1090157
+time_max=2.960235
 retries_min=1
-retries_max=1399105
-alloc_min=200e6 #223276968
-alloc_max=5454706904
+retries_max=1343853
+alloc_min=100e6 #114981992
+alloc_max=4213293760
 
 #----------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ SET_RETRIES_PLOT = "set style data histogram; \
 SET_ALLOC_PLOT = "set style data linespoint; \
                   set logscale y 2; \
                   set yrange[alloc_min:alloc_max]; \
-                  set ytics (250e6, 500e6, 1e9, 2e9, 4e9); \
+                  set ytics (125e6, 250e6, 500e6, 1e9, 2e9, 4e9); \
                   set ytics nomirror"
 
 left_margin=0.2
