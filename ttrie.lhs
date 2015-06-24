@@ -51,7 +51,7 @@ Since looking up an account from the |Map| involves a |readTVar| operation, the 
 The drawback of this pattern of simply wrapping a |Map| inside a |TVar| is that when adding or removing elements of the |Map|, one has to replace the |Map| inside the |TVar| wholesale.
 Thus all concurrently running transactions that have accessed the |Map| become invalid and will have to restart once they try to commit.
 Depending on the exact access patterns, this can be a serious cause of contention.
-For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.4 millions retries.\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}}
+For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.3 million retries.\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}}
 That is some serious overhead!
 
 The underlying problem is that the whole |Map| is made transactional, when we only ever care about the subset of the |Map| that is relevant to the current transaction.
@@ -479,12 +479,12 @@ The benchmarks were run on an Amazon EC2 C3 extra-large instance with Intel Xeon
 Under comparison were three hashing-based container types: a transactional trie; a |HashMap| from the \package{unordered-containers} library \parencite{tibell-yang-2014}, wrapped inside a |TVar|; and the STM-specialized hash array mapped trie from the \package{stm-containers} library \parencite{volkov-2014a}.
 
 Each benchmark consists of a number of random STM transactions.
-The benchmarks differ in the size and the composition of these transactions.
+The benchmarks differ in the size and composition of these transactions.
 Each benchmark is run on every container type, using the same random |Text| strings as keys each time.
 The benchmarks are run multiple times, using an increasing number of threads.
 The transactions are split evenly over the number of threads in use.
 The time it takes to complete all transactions for a particular container is measured using the \package{criterion} and \package{criterion-plus} libraries \parencite{osullivan-2014,volkov-2014b}, which calculate the mean execution time over many iterations.
-To measure contention, the transactions are run again using the \package{stm-stats} library \parencite{leuschner-et-al-2011} to count how often the STM runtime system had to restart transactions due to conflicts.
+To measure contention, the transactions are run again using the \package{stm-stats} library \parencite{leuschner-et-al-2011} to count how often the STM runtime system has to restart transactions due to conflicts.
 Finally, the transactions are run once more to measure the total amount of allocated memory, using GHCs built-in facilities for collecting memory usage statistics.
 All benchmarks were compiled using GHC 7.8.3.
 For more details about test data generation and the exact benchmark setup, see the \package{ttrie} source distribution.
@@ -498,7 +498,7 @@ under comparison: \red{\textbf{ttrie}}, \blue{\textbf{stm-containers}}, \green{\
 \label{fig:bench-overview-1}
 \end{figure}
 
-\paragraph{Single transaction benchmarks.}
+\paragraph{Single-operation transactions.}
 
 The first four benchmarks (\Cref{fig:bench-overview-1}) each perform \num{200 000} transactions, where each transaction is just a single operation: insert, update, lookup or delete.
 The insertion benchmark starts out with an empty container, while all other benchmarks operate on containers prefilled with \num{200 000} entries.
@@ -510,22 +510,22 @@ The greater complexity of \package{ttrie} and \package{stm-containers} results i
 Curiously, \package{stm-containers} exhibits some contention for this read-only operation.
 
 Updates are similarly well-suited to the |HashMap|.
-Since all the keys are already present in the map, there are no structural changes happening.
-Transactions are fast enough so that even though there is a small amount of contention --- as all transactions have to go through a single |TVar| --- the number of retries stays low enough to not matter.
-Simple transactions that update a single large |TVar|, as in the \package{unordered-containers} case, are faster than ones that update multiple smaller |TVar|s in a more complex fashion, as with \package{ttrie} and \package{stm-containers}.
-The |HashMap| is roughly twice as fast as the \package{ttrie}, which is roughly twice as fast as the \package{stm-containers} map.
+Since the keys are already present in the map, there are no structural changes necessary.
+The transactions are fast enough so that even though there is a small amount of contention --- as all transactions have to go through a single |TVar| --- the number of retries stays low enough to not matter.
+The |HashMap| is roughly twice as fast as the \package{ttrie}, which is roughly twice as fast int his scenario as the \package{stm-containers} map.
 
 The story looks entirely different for the insert and delete operations.
 Here, the |TVar|-wrapped |HashMap| does not scale at all.
-On the highest number of threads, \package{unordered-containers} performs especially bad: an order of magnitude slower than the next best contender.
-It is immediately obvious why: the amount of contention is so high that the number of retries actually exceeds the number of transactions, i.e.\ every transaction has to retry at least once; additional threads are actually detrimental to performance.
+On the highest number of threads, it is an order of magnitude slower than the next best contender.
+The reason is obvious: the amount of contention is so high that the number of retries actually exceeds the number of transactions, i.e.\ every transaction has to retry at least once; additional threads are actually detrimental to performance.
 With \num{16} threads, each one performing only \num{12500} transactions, the insert and delete benchmarks recorded over \num{1} million retries for \package{unordered-containers}.
 The transactional trie, as expected, exhibits no contention at all.
 It is not only much faster than \package{unordered-containers}, it is also twice as fast as \package{stm-containers} during all delete benchmarks and about half of the insert benchmarks.
-As for memory consumption, the total amount of memory allocated by \package{unordered-containers} increases dramatically with the number of threads, while \package{ttrie} and \package{stm-containers} use a constant amount of memory irrespective of the level of concurrency, with \package{ttrie} using somewhat less.
+The total amount of memory allocated by \package{unordered-containers} also increases dramatically with the number of threads, while \package{ttrie} and \package{stm-containers} both use a constant amount of memory irrespective of the level of concurrency, with \package{ttrie} using somewhat less.
 
-That \package{ttrie} is much faster during delete than \package{unordered-containers} even on a single thread, where there is no concurrency overhead, is explained by the transactional trie not actually compressing itself after removing a value, which makes a deletion just a special case of an update.
-In fact, as long as there are no concurrency effects (like legitimate conflicts on the value level or interactions inside a larger transaction), the update, lookup and delete operations of the \package{ttrie} should always exhibit the same run-time performance.
+That the transactional trie is faster than \package{unordered-containers} during delete even on a single thread, where there can be no contention, is explained by the transactional trie not actually compressing itself after removing a value.
+This makes a deletion in the trie just a special case of an update.
+In fact, as long as there are no legitimate conflicts on the value level or interactions within a larger transaction, the update, lookup and delete operations of the \package{ttrie} should always exhibit the same run-time performance.
 
 \begin{figure}
 \centering
@@ -534,19 +534,19 @@ In fact, as long as there are no concurrency effects (like legitimate conflicts 
 \label{fig:bench-overview-5}
 \end{figure}
 
-\paragraph{Multiple mixed transactions benchmarks.}
+\paragraph{Mixed transactions.}
 
-For the second set of benchmarks (\Cref{fig:bench-overview-5}), transactions are no longer just a single operation, but a mix of up to 5 operations.
-Using transactions of varying sizes and with different compositions much closer reflects real-world usage.
+For the second set of benchmarks (\Cref{fig:bench-overview-5}), transactions are no longer just a single operation, but composed of a mix of up to 5 operations.
+Using transactions of varying sizes and compositions much closer reflects real-world usage.
 The insert benchmark now consists of 70\% inserts, with the remaining 30\% evenly distributed among updates, lookups and deletes.
 Likewise, the update benchmark now consists of 70\% updates, the lookup benchmark of 70\% lookups and the delete benchmark of 70\% deletes.
 The insert benchmark again starts out with an empty container, while the other benchmarks operate on containers prefilled with \num{1 000 000} entries.
 
 As expected, legitimate conflicts between transactions are now slightly more common, evidenced by the increased number of retries measured for the transactional trie, but they still amount to less than a dozen in the worst case.
 Yet it should come as no surprise that for \package{unordered-containers} and \package{stm-containers} the number of spurious retries vastly overshadows the legitimate conflicts.
-In the worst case, \package{unordered-containers} has to retry more than \num{1.3} million times for \num{200 000} transactions to succeed.
-By mixing in just 30\% different operations and slightly varying the transaction sizes, \package{unordered-containers} exhibits contention even in the predominantly update and lookup scenarios.
-The run-time performance of the |TVar|-wrapped |HashMap| begins to rapidly degrade at 4 threads, which is when the number of retries first exceeds the number of transactions.
+In the worst case, the |TVar|-wrapped |HashMap| has to retry more than \num{1.3} million times for \num{200 000} transactions to succeed.
+By mixing in just 30\% different operations and using slightly varying transaction sizes, \package{unordered-containers} exhibits contention even in the predominantly update and lookup scenarios.
+The run-time performance of \package{unordered-containers} begins to rapidly degrade at 4 threads, which is when the number of retries first exceeds the number of transactions.
 
 The other results are largely the same as in the first set of benchmarks, just a bit more pronounced.
 For example, \package{ttrie} and \package{stm-containers} now have a virtually identical runtime performance for insert, while the lead \package{ttrie} had on \package{stm-containers} during update, lookup and delete has become bigger.
@@ -562,7 +562,7 @@ under comparison: \red{\textbf{ttrie}}, \blue{\textbf{stm-containers}}, \green{\
 \label{fig:bench-detail-balanced}
 \end{figure}
 
-\paragraph{Balanced benchmark.}
+\paragraph{Balanced transactions.}
 
 The last benchmark (\Cref{fig:bench-detail-balanced}) consists of a balanced mix of 25\% of each operation, on containers prefilled with \num{1 000 000} entries.
 
@@ -575,4 +575,3 @@ here, \package{ttrie} is 2--4 times faster than \package{stm-containers}, alloca
 \noindent
 In addition to the empirical evaluation above, I have added transactional tries to the social networking example from \Cref{chap:database}, as a practical demonstration of their use.
 The updated version, which replaces the |TVar|-wrapped |Data.Map| fields of the top-level |SocialDB| type with transactional |Map|s, can be found in the \texttt{social3} folder of the sample code.
-% TODO: only minor changes where necessary etc.
