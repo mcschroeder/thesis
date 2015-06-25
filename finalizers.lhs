@@ -238,6 +238,7 @@ The variable can be read safely -- a deadlock only happens if an inner transacti
 %============================================================
 
 \section{Related Work}
+\label{sec:finalizers-related-work}
 
 % onCommit
 Extending Haskell's STM to allow safe combination of atomic blocks with I/O actions has been proposed from the very beginning.
@@ -272,22 +273,6 @@ What's worse, there is no way from looking only at |baz| to discern that any of 
 The composability of |onCommit| hides effects that in my opinion should be made explicit.
 This may not be an issue in all cases, but for serialization it clearly is.
 Using |atomicallyWithIO| is safer in this regard, at the cost of reduced composability.
-
-%TODO twilight stm & other stm w/ io combinations
-
-% related work (suggested by victor gramoli):
-%
-% TX Linux 2007
-%
-% GCC unsafe transactions
-% [[transaction_unsafe]]
-%
-% privatization techniques for software transactional memory, mike spear, marathe
-% podc 2007
-%
-% paris workshop transactional memory
-%
-% scala
 
 %============================================================
 

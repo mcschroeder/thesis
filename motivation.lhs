@@ -12,16 +12,16 @@ One such abstraction is \emph{Software Transactional Memory} (STM).
 Briefly, this technique allows the programmer to group multiple memory operations into a single atomic block, not unlike a database transaction.
 When implemented in a high-level language such as Haskell, with its emphasis on purity and its strong static type system, STM becomes especially powerful. 
 
-However, it is not always as powerful as we would like it to be.
-Disallowing arbitrary side effects, albeit for good reasons, limits STM's usefulness in certain situations.
-For example, while manipulating memory using STM is easy, persisting those manipulations in a transactionally safe way is frustratingly impossible.
-There is no way to achieve \emph{durability}, an important component of database transactions, using pure STM.
-Another issue is \emph{contention}.
-Some pure data types, such as maps, are highly inefficient when combined with STM, causing unreasonably high numbers of transactional conflicts.
-These could be avoided using local side effects.
+However, it is not always as powerful as we would like it to be:
+\begin{itemize}
+\item While manipulating memory using STM is easy, persisting those manipulations in a transactionally safe way is frustratingly impossible.
+There is no way to achieve \emph{durability}, an important component of database transactions.
+\item Some pure data types, such as maps, can be highly inefficient when combined with STM.
+The reason is \emph{contention}: certain common access patterns cause unreasonably high numbers of transactional conflicts.
+\end{itemize}
 
-In this thesis, I will explore the question:
-\emph{How can we incorporate side-effecting actions into a transaction in a safe manner?}
+In this thesis, I will address these problems by combining transactions with side-effects.
+I present two approaches of doing this safely: one from the top down, and one from the bottom up.
 In particular, the contributions of my work are:
 \begin{itemize}
 \item A new STM primitive called |atomicallyWithIO| that allows the user to attach a \emph{finalizer} to an STM transaction.
@@ -43,7 +43,7 @@ In the remainder of this introductory chapter, I will give a brief overview of H
 
 \section{STM in Haskell}
 
-Here are the main data types and operations of Haskell's STM interface:
+Here are the main data types and operations of STM in Haskell:
 \begin{code}
 data STM a
 instance Monad STM
