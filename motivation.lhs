@@ -21,19 +21,18 @@ The reason is \emph{contention}: certain common access patterns cause unreasonab
 \end{itemize}
 
 In this thesis, I will address these problems by combining transactions with side-effects.
-I present two approaches of doing this safely: one from the top down, and one from the bottom up.
 In particular, the contributions of my work are:
 \begin{itemize}
 \item A new STM primitive called |atomicallyWithIO| that allows the user to attach a \emph{finalizer} to an STM transaction.
 Such finalizers are arbitrary I/O actions that can be used to serialize transactional data or incorporate external information into a transaction.
 I provide a detailed discussion of the semantics of this extension to STM, as well as my implementation of it in the Glasgow Haskell Compiler. (\Cref{chap:finalizers})
 
-\item A demonstration of the effectiveness of finalizers by constructing a thin database abstraction on top of STM.
-I then use this to build a simple social networking site. (\Cref{chap:database})
-
 \item A contention-free STM data structure, the \emph{transactional trie}.
 It is based on the concurrent trie, but lifted into an STM context and combines transactions with carefully considered internal side effects.
 I present its design and implementation in Haskell, and evaluate it against other STM-specialized data structures. (\Cref{chap:ttrie})
+
+\item A demonstration of the effectiveness of both finalizers and transactional tries by constructing a thin database abstraction on top of STM, which I then use to build a simple social networking site. (\Cref{chap:database})
+
 \end{itemize}
 
 \noindent

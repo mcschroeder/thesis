@@ -3,8 +3,9 @@
 \chapter{STM as a database language}
 \label{chap:database}
 
-As a qualitative demonstration of the effectiveness of finalizers, I now present a reusable framework for constructing lightweight databases.
-This is a continuation of my previous work on the \package{tx} library \parencite{schroeder-2013}, which was the original motivation for finalizers.
+As a qualitative demonstration of the effectiveness of both finalizers and transactional tries, I will now use them to build a real application together with a reusable framework for constructing lightweight databases.
+
+This is partly a continuation of my previous work on the \package{tx} library \parencite{schroeder-2013}, which was the original motivation for finalizers.
 The goal of that library was to add a thin persistence layer on top of STM.
 But without finalizers, this could not be done in a reliable manner, for the reasons laid out in \Cref{sec:stm-and-acid}.
 Now, however, we can do it right.
@@ -14,8 +15,8 @@ Now, however, we can do it right.
 As a running example, we will build a simple social networking site.
 The full application includes a Haskell web server that exposes a RESTful API and a simple JavaScript client.
 Here we will focus on the site's back-end, i.e.\ its data types and business logic.
-All code snippets in this chapter are taken from fully working prototypes.
-The complete sample code is available at \url{http://github.com/mcschroeder/stmfin-examples}. 
+All code snippets in this chapter are taken from fully working programs.
+The complete sample code is available at \url{http://github.com/mcschroeder/social-example}.
 
 \bigskip
 Our social network will start out with a modest set of features:
@@ -31,12 +32,14 @@ This first version of the social network can be found in the \texttt{social0} fo
 Speaking of types, here they are:
 \begin{code}
 data SocialDB = SocialDB
-    {  users  :: TVar (Map UserName User)
-    ,  posts  :: TVar (Map PostId Post)
+    {  users  :: Map UserName User
+    ,  posts  :: Map PostId Post
     }
 \end{code}
 \begin{code}
 type UserName = Text
+\end{code}
+\begin{code}
 data User = User
     {  name       :: UserName
     ,  timeline   :: TVar [Post]
@@ -45,7 +48,10 @@ data User = User
     }
 \end{code}
 \begin{code}
-type PostId = Word64
+newtype PostId = PostId Word64
+    deriving (Eq, Ord, Random, Show, Hashable)
+\end{code}
+\begin{code}
 data Post = Post
     {  postId  :: PostId
     ,  author  :: User
@@ -58,6 +64,9 @@ The whole of the network is contained in the |SocialDB| type.
 Users are identified by their names and are represented by the |User| type.
 Each user keeps a list of the posts on her own timeline and also keeps track of other users that she follows and that are following her.
 Posts are identified by a globally unique |PostId| and are represented by the |Post| type, which contains the body of the post as well as its author and the time it was created.
+
+Behind the |Map| type of the |users| and |posts| collections lies the transactional trie from \Cref{chap:ttrie}.
+This guarantees that there won't be any contention when our millions of future users all post something to our site at the same time.
 
 Since the types contain transactional variables, computations on them must be done in the STM monad.
 For example, this is how we compute a user's feed:
@@ -75,7 +84,7 @@ feed user = do
     return $ sortBy (flip $ comparing time) (myPosts ++ otherPosts)
 \end{code}
 %}
-\clearpage\noindent
+\noindent
 And this is how users can follow each other:
 %{
 %format user = "\Varid{user}"
@@ -98,9 +107,10 @@ Additionally, we can take advantage of some other nice STM features, like compos
 \begin{code}
 waitForFeed :: User -> UTCTime -> STM [Post]
 waitForFeed user lastSeen = do
-    let isNew post = diffUTCTime (time post) lastSeen > 0.1
     posts <- takeWhile isNew <$> feed user
     if null posts then retry else return posts
+  where
+    isNew post = diffUTCTime (time post) lastSeen > 0.1
 \end{code}
 %}
 The |retry| operator enables |waitForFeed| to block until there are new posts in a user's feed.
@@ -127,8 +137,8 @@ createPost author body db = do
 newUniquePostId :: SocialDB -> STM PostId
 newUniquePostId db = do
     postId <- unsafeIOToSTM randomIO
-    posts <- readTVar (posts db)
-    check (Map.notMember postId posts)
+    alreadyExists <- Map.member postId (posts db)
+    check (not alreadyExists)
     return postId
 \end{code}
 \begin{code}
@@ -136,7 +146,7 @@ newPost :: PostId -> User -> Time -> Text -> SocialDB -> STM Post
 newPost postId author time body db = do
     let post = Post {..}
     modifyTVar (timeline author) (post:)
-    modifyTVar (posts db) (Map.insert postId post)
+    Map.insert postId post (posts db)
     return post
 \end{code}
 %}
@@ -152,7 +162,7 @@ Of course, since we are using \emph{only} STM, all effects stay purely in memory
 If the server is shut down, the data is gone.
 In the next section, we will use finalizers to change that.
 
-\section{Adding durability: the TX monad}
+\section{The TX monad}
 
 The idea is to use an STM finalizer to record state-changing operations in a write-ahead log file.
 We do not serialize the data itself, but rather the operations on the data.
@@ -335,17 +345,13 @@ This is why |getUser| is actually implemented like this:
 getUser :: UserName -> TX SocialDB User
 getUser name = do
     db <- getData
-    usermap <- liftSTM $ readTVar (users db)
-    case Map.lookup name usermap of
-        Just user  -> return user
-        Nothing    -> throwTX (UserNotFound name)
+    liftSTM $ do
+        user <- Map.lookup name (users db)
+        case user of
+            Just user  -> return user
+            Nothing    -> throwSTM (UserNotFound name)
 \end{code}
 %}
-where |throwTX| is simply
-\begin{code}
-throwTX :: Exception e => e -> TX d a
-throwTX = liftSTM . throwSTM
-\end{code}
 
 In the majority of uses, the desired outcome of a function like |getUser| in case the user is not found is to abort the transaction.
 There are certainly ways to avoid spooky exceptions as much as possible, e.g.\ by adding an exception monad transformer layer to |TX| (something like |Control.Monad.Trans.Except| from \package{transformers}).

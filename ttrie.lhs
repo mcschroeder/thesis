@@ -568,10 +568,3 @@ The last benchmark (\Cref{fig:bench-detail-balanced}) consists of a balanced mix
 
 This kind of benchmark plays to the strengths of the transactional trie:
 here, \package{ttrie} is 2--4 times faster than \package{stm-containers}, allocating only a third of the memory; and 1.3--8.6 times faster than \package{unordered-containers}, allocating almost 10 times less memory.
-
-
-\bigskip
-\bigskip
-\noindent
-In addition to the empirical evaluation above, I have added transactional tries to the social networking example from \Cref{chap:database}, as a practical demonstration of their use.
-The updated version, which replaces the |TVar|-wrapped |Data.Map| fields of the top-level |SocialDB| type with transactional |Map|s, can be found in the \texttt{social3} folder of the sample code.
