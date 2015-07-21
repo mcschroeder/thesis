@@ -492,8 +492,8 @@ For more details about test data generation and the exact benchmark setup, see t
 \begin{figure}
 \centering
 \input{benchmarks/overview1}
-\caption{Single operation benchmarks:\\
-\num{200 000} transactions of size \num{1};\\
+\caption{Single operation benchmarks:
+\num{200 000} transactions of size \num{1};
 under comparison: \red{\textbf{ttrie}}, \blue{\textbf{stm-containers}}, \green{\textbf{unordered-containers}}}
 \label{fig:bench-overview-1}
 \end{figure}
@@ -555,9 +555,9 @@ For example, \package{ttrie} and \package{stm-containers} now have a virtually i
 \centering
 \input{benchmarks/detail-balanced}
 \caption{Balanced benchmark:
-\num{200 000} transactions of size \num{1}-\num{5};\\
-25\% inserts, 25\% updates, 25\% lookups, 25\% deletes;\\
-container prefilled with \num{1 000 000} keys;\\
+\num{200 000} transactions of size \num{1}-\num{5};
+25\% inserts, 25\% updates, 25\% lookups, 25\% deletes;
+container prefilled with \num{1 000 000} keys;
 under comparison: \red{\textbf{ttrie}}, \blue{\textbf{stm-containers}}, \green{\textbf{unordered-containers}}}
 \label{fig:bench-detail-balanced}
 \end{figure}

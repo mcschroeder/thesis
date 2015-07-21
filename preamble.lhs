@@ -1,5 +1,3 @@
-\usepackage[T1]{fontenc}
-\usepackage[yyyymmdd,hhmmss]{datetime}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mathtools}
@@ -7,64 +5,24 @@
 \usepackage{fancyvrb}
 \usepackage{array}
 \usepackage{adjustbox}
-\usepackage[justification=centering]{caption}
+% \usepackage[justification=centering]{caption}
 \usepackage{siunitx}
+
+\setsecnumdepth{subsection} % enumerate subsections
 
 \usepackage{fontspec}
 \setmonofont
-  [ BoldFont       = DejaVuSansMono-Bold.ttf,
-    ItalicFont     = DejaVuSansMono-Oblique.ttf,
-    BoldItalicFont = DejaVuSansMono-BoldOblique.ttf,
-    Scale          = MatchLowercase,
-  ]
-  {DejaVuSansMono.ttf}
+   [ BoldFont       = DejaVuSansMono-Bold.ttf,
+     ItalicFont     = DejaVuSansMono-Oblique.ttf,
+     BoldItalicFont = DejaVuSansMono-BoldOblique.ttf,
+     Scale          = MatchLowercase
+   ]
+   {DejaVuSansMono.ttf}
 
-%\setmonofont
-%  [ BoldFont       = UbuntuMono-Bold,
-%    ItalicFont     = UbuntuMono-Italic,
-%    BoldItalicFont = UbuntuMono-BoldItalic,
-%    Scale          = MatchLowercase,
-%  ]
-%  {UbuntuMono-Regular}
 
-%---------------------------------------------------
-% header & footer
-%---------------------------------------------------
-\usepackage{fancyhdr}
-\pagestyle{fancy}
+%\newcommand{\clearemptydoublepage}{\clearpage{\pagestyle{empty}\cleardoublepage}}
 
-\setlength{\headheight}{15pt} 
-
-\renewcommand{\chaptermark}[1]{
-  \ifnum\value{chapter}>0
-    \markboth{\thechapter.\ #1}{}
-  \else
-    \markboth{#1}{}
-  \fi
-}
-
-\fancyhead{}
-\fancyhead[ER]{\textsl{\nouppercase{\leftmark}}}
-\fancyhead[OL]{\textsl{\nouppercase{\rightmark}}}
-
-\fancyhead[LE,RO]{\thepage}
-
-\fancyfoot{}
-
-% TODO remove draft notice
-\def\draftnotice{\tiny\emph{[draft~\today~\currenttime]}}
-\fancyfoot[C]{\draftnotice}
-\fancypagestyle{plain}{
-\fancyhf{}
-\fancyfoot[C]{\thepage\\\draftnotice}
-}
-
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-\newcommand{\clearemptydoublepage}{\clearpage{\pagestyle{empty}\cleardoublepage}}
-
-\usepackage{emptypage}
+%\usepackage{emptypage}
 
 %---------------------------------------------------
 % biblatex
@@ -72,7 +30,7 @@
 \usepackage[style=authoryear,backref=true,backend=biber,maxbibnames=4]{biblatex}
 
 % for american-style quotes
-\usepackage[american]{babel}
+% \usepackage[american]{babel}
 \usepackage[english=american]{csquotes}
 \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
 \renewcommand*{\mkcitation}{}
@@ -89,7 +47,7 @@
 \hypersetup{colorlinks=true}
 \hypersetup{linktocpage=true}
 
-%TODO \hypersetup{pdftitle={}}
+\hypersetup{pdftitle={Durability and Contention in Software Transactional Memory}}
 \hypersetup{pdfauthor={Michael Schröder}}
 \hypersetup{pdfkeywords={functional programming, transactional memory, haskell, stm}}
 \hypersetup{pdfsubject={Software Engineering master's thesis}}

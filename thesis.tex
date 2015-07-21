@@ -1,23 +1,30 @@
-\documentclass[a4paper,12pt]{book}
+\documentclass[final,oldfontcommands]{vutinfth}
 
 \input{preamble}
+
+\setauthor{}{Michael Schröder}{}{male}
+\setadvisor{Univ.Prof. Dipl.-Inf. Dr.rer.nat.}{Jens Knoop}{}{male}
+\setfirstassistant{Assoc. Prof.}{Gabriele Keller}{}{female}
+\setaddress{Rosasgasse 15/8\\ 1120 Wien}
+\setregnumber{0725699}
+\setdate{01}{08}{2015}
+\settitle{Durability and Contention in Software Transactional Memory}{Durability and Contention in Software Transactional Memory}
+\setthesis{master}
+\setmasterdegree{dipl.}
+\setcurriculum{Software Engineering \& Internet Computing}{Software Engineering \& Internet Computing} 
 
 \begin{document}
 
 \frontmatter
 
-%TODO official cover
-\title{Adding durability and eliminating contention in Software Transactional Memory}
-\author{Michael Schröder}
-\date{\draftnotice}
-\maketitle
-\clearemptydoublepage
+\addtitlepage{naustrian}
+\addstatementpage
+\include{abstract-german}
 
-%TODO statement
-\include{acknowledgements}
+\selectlanguage{english}
 \include{abstract}
-
-\input{contents}
+\include{acknowledgements}
+\tableofcontents*
 
 \mainmatter
 
@@ -29,6 +36,6 @@
 
 \backmatter
 
-\input{bibliography}
+\printbibliography
 
 \end{document}

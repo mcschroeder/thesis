@@ -1,6 +1,6 @@
 %include thesis.fmt
 
-\chapter{Abstract}
+\begin{abstract*}
 
 Software Transactional Memory (STM) immensely simplifies concurrent programming by allowing memory operations to be grouped together into atomic blocks.
 Like database transactions, STM transactions provide atomicity, consistency and isolation.
@@ -19,3 +19,5 @@ It is based on the lock-free concurrent trie, and uses localized side-effects to
 Both finalizers and the transactional trie are examples of combining transactions with side-effects.
 Finalizers are a general top-down approach, while the transactional trie incorporates side effects on the micro-level.
 I demonstrate the effectiveness of both by building a full sample application that uses STM as a database language, providing durability and avoiding contention.
+
+\end{abstract*}

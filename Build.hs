@@ -60,8 +60,8 @@ getIncludes tex = map ((!!1) . splitOneOf "{}")
                 . filter isInclude
               <$> readFileLines tex
   where
-    isInclude = liftA2 (||) ("\\include" `isPrefixOf`)
-                            ("\\input" `isPrefixOf`)
+    isInclude = liftA2 (||) ("\\include{" `isPrefixOf`)
+                            ("\\input{" `isPrefixOf`)
               . dropWhile isSpace
 
 -- for the benefit of preview apps, the pdf is actually updated in-place
