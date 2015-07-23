@@ -80,7 +80,7 @@ An important tool to make this possible is the composable blocking operator |ret
 %
 % retry
 Conceptually, |retry| abandons the current transaction and runs it again from the top.
-In the following example, the variable |v| is decremented, unless it is zero, in which case the transaction blocks until |v| is non-zero again.
+In the following example, the variable |v| is decremented, unless it is zero, in which case the transaction blocks until |v| is non-zero again:
 \begin{code}
 atomically $  do x <- readTVar v
               if x == 0

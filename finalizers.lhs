@@ -58,9 +58,13 @@ What is needed, then, is a new STM primitive.
 Not a combination of existing functions, but a new fundamental operation that does exactly what we want.
 It would have to be implemented directly in the runtime system and we would have to make sure that it is sound and does not allow us to undermine the safety of STM in general.
 
+\medskip
+
 I will now describe this primitive, give its detailed semantics and talk about my implementation of it in the Glasgow Haskell Compiler.
 
 %============================================================
+
+\clearpage
 
 \section{Finalizers}
 \label{sec:stm-overview}
@@ -118,13 +122,13 @@ If |printTicket| throws an exception, the transaction rolls back and the |ticket
 An I/O action can of course collect input as well.
 Consider the following example of an ATM.
 The function to withdraw money from an account is quite standard; as is, one would imagine, the function to dispense actual cash from the machine:
+
 %{
 %format acc = "\Varid{acc}"
 %format amount = "\Varid{amount}"
 %format bal = "\Varid{bal}"
 \begin{code}
 type Account = TVar Int
-
 withdraw :: Account -> Int -> STM ()
 withdraw acc amount = do  bal <- readTVar acc
                           if bal < amount
@@ -237,6 +241,8 @@ The variable can be read safely -- a deadlock only happens if an inner transacti
 
 %============================================================
 
+
+
 \section{Related Work}
 \label{sec:finalizers-related-work}
 
@@ -256,6 +262,7 @@ The caller of |atomically| does not have to be aware of it.
 While greater composability seems to be more in the spirit of Haskell's STM, I think that in this case it is actually dangerous.
 I/O is fundamentally not composable in the same way that STM is.
 Consider the following scenario:
+
 \begin{code}
 foo  :: STM ()
 foo  = do  writeTVar a 1
@@ -283,44 +290,6 @@ Using |atomicallyWithIO| is safer in this regard, at the cost of reduced composa
 
 \section{Implementation}
 \label{sec:stm-implementation}
-
-\begin{figure}
-\begin{Verbatim}[commandchars=\\\{\}]
-// Basic transaction execution
-TRec *stmStartTransaction();
-Closure *stmReadTVar(TRec *trec, TVar *tvar);
-void stmWriteTVar(TRec *trec, TVar *tvar, Closure *new_value);
-
-// Transaction commit operations
-\colorA{Bool stmPrepareToCommitTransaction(TRec *trec);}
-\colorA{void} stmCommitTransaction(TRec *trec);
-
-// Blocking operations
-Bool stmWait(TRec *trec);
-Bool stmReWait(TRec *trec);
-
-// Transactional variable
-struct TVar \{
-  Closure    *current_value;
-  \colorA{TRec       *frozen_by;}
-\}
-
-// Transactional record entry
-struct TRecEntry \{
-  TVar        *tvar;
-  Closure     *expected_value;
-  Closure     *new_value
-  TRecEntry   *next_entry;
-\}
-
-// Transactional record
-struct TRec \{
-  TRec         *enclosing_trec;
-  TRecEntry    *next_entry;
-\}
-\end{Verbatim}
-\caption{Simplified STM runtime interface and data types, extended to support \colorA{finalizers}}
-\end{figure}
 
 The changes necessary to add finalizers to GHC's STM implementation are surprisingly few.
 Before describing them I will once again first give a brief overview of the status quo.
@@ -356,6 +325,46 @@ When validation is successful for the whole \rts{TRec}, the \rts{TVar}s are one 
 Because all \rts{TVar}s are locked during validation and each one is only unlocked after it has been updated, the whole commit happens atomically with respect to other transactions.
 Any other transaction trying to commit at the same time will fail its validation.
 A transaction trying to read a locked \rts{TVar} will briefly block, but since \rts{TVar}s are only ever locked for very short periods of time, this is not a problem.
+
+%------------------------------------------------------------
+
+\begin{figure}
+\begin{Verbatim}[frame=single,framesep=1em,commandchars=\\\{\}]
+// Basic transaction execution
+TRec *stmStartTransaction();
+Closure *stmReadTVar(TRec *trec, TVar *tvar);
+void stmWriteTVar(TRec *trec, TVar *tvar, Closure *new_value);
+
+// Transaction commit operations
+\colorA{Bool stmPrepareToCommitTransaction(TRec *trec);}
+\colorA{void} stmCommitTransaction(TRec *trec);
+
+// Blocking operations
+Bool stmWait(TRec *trec);
+Bool stmReWait(TRec *trec);
+
+// Transactional variable
+struct TVar \{
+  Closure    *current_value;
+  \colorA{TRec       *frozen_by;}
+\}
+
+// Transactional record entry
+struct TRecEntry \{
+  TVar        *tvar;
+  Closure     *expected_value;
+  Closure     *new_value
+  TRecEntry   *next_entry;
+\}
+
+// Transactional record
+struct TRec \{
+  TRec         *enclosing_trec;
+  TRecEntry    *next_entry;
+\}
+\end{Verbatim}
+\caption{GHC's STM runtime interface (simplified), extended to support \colorA{finalizers}}
+\end{figure}
 
 %------------------------------------------------------------
 

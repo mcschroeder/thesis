@@ -22,13 +22,9 @@ They are only ever performed as premises of the \term{atomically} operator and t
 Simply requiring that \term{atomically} must reduce (on the STM level) to either \term{return} or \term{throw}, and not \term{retry}, obviates the need for modeling transaction logs or rollback.
 These matters are left for the implementation.
 
-\paragraph{Syntax}
+\clearpage
 
-\begin{figure}
-\input{semantics/orig-syntax}
-\caption{The original syntax of STM Haskell \parencite{harris-et-al-2005}}
-\label{fig:orig-syntax}
-\end{figure}
+\paragraph{Syntax}
 
 % syntax of values and terms
 The syntax of values and terms (\Cref{fig:orig-syntax}) is entirely conventional, except that some monadic combinators are treated as values.
@@ -59,12 +55,6 @@ STM terms are then evaluated using the context $\mathbb{S}$.
 
 \paragraph{Administrative transitions}
 
-\begin{figure}
-\input{semantics/orig-admin}
-\caption{Administrative transitions of STM Haskell \parencite{harris-et-al-2005}}
-\label{fig:orig-admin}
-\end{figure}
-
 % admin transitions
 A few fundamental transitions are used on both the I/O and the STM level (\Cref{fig:orig-admin}).
 The rule \rul{BIND}, which implements sequential composition in the monad, as well as \rul{THROW} and \rul{RETRY} are quite ordinary.
@@ -74,13 +64,22 @@ It uses a function $\mathcal{V}$, which is entirely standard and whose definitio
 % lifting
 The I/O level rule \rul{ADMIN} lifts administrative rules into the I/O world. \rul{AADMIN} does the same for STM.
 
-\paragraph{I/O transitions}
-
-\begin{figure}
-\input{semantics/orig-io}
-\caption{I/O-level transitions of STM Haskell \parencite{harris-et-al-2005}}
-\label{fig:orig-io}
+\begin{figure}[p]
+\input{semantics/orig-syntax}
+\caption{The original syntax of STM Haskell \parencite{harris-et-al-2005}}
+\label{fig:orig-syntax}
 \end{figure}
+
+\begin{figure}[p]
+\input{semantics/orig-admin}
+\caption{Administrative transitions of STM Haskell \parencite{harris-et-al-2005}}
+\label{fig:orig-admin}
+\end{figure}
+
+
+\clearpage
+
+\paragraph{I/O transitions}
 
 % io transitions
 A top level I/O transition (\Cref{fig:orig-io}) is of the form
@@ -112,13 +111,16 @@ If, on the other hand, the STM term evaluates to $\term{throw}\ N$, i.e.\ if the
 Only the allocation effects $\Delta'$ are kept and made globally visible.
 This is necessary because the exception value $N$ may contain references to variables that were allocated inside the transaction and we do not want to leave dangling pointers around.
 
-\paragraph{STM transitions}
 
-\begin{figure}
-\input{semantics/orig-stm}
-\caption{STM-level transitions of STM Haskell \parencite{harris-et-al-2005}}
-\label{fig:orig-stm}
+\begin{figure}[p]
+\input{semantics/orig-io}
+\caption{I/O transitions of STM Haskell \parencite{harris-et-al-2005}}
+\label{fig:orig-io}
 \end{figure}
+
+\clearpage
+
+\paragraph{STM transitions}
 
 % stm transitions
 An \emph{STM transition} (\Cref{fig:orig-stm}) is of the form 
@@ -150,16 +152,18 @@ If $M$ evaluates to \term{retry} \rul{XSTM3}, all effects are discarded.
 This last set of rules was introduced in the post-publication appendix of \textcite{harris-et-al-2005} to alleviate a subtle issue concerning leaking of effects.
 For a more elaborate discussion of this issue and of the whole system, refer to that paper.
 
+\begin{figure}[p]
+\input{semantics/orig-stm}
+\caption{STM transitions of STM Haskell \parencite{harris-et-al-2005}}
+\label{fig:orig-stm}
+\end{figure}
+
+\clearpage
+
 %------------------------------------------------------------
 
 \section{Semantics of finalizers}
 \label{sec:stm-fin-semantics}
-
-\begin{figure}
-\input{semantics/step1-io}
-\caption{I/O-level transitions of STM Haskell with \colorA{finalizers}}
-\label{fig:step1-io}
-\end{figure}
 
 Now that we are familiar with the original STM semantics, we can extend them to support finalizers.
 First, let us realize that \term{atomically} is trivially expressed in terms of \term{atomicallyWithIO}:
@@ -193,21 +197,17 @@ Like with \rul{ATHROW1}, the STM result heap $\Theta'$ is discarded.
 However, the I/O result heap $\hat{\Theta}$ \emph{must be kept}, because it could have already been seen by other I/O level transitions.
 This is what we mean when we speak of irrevocable I/O.
 
+\begin{figure}[!h]
+\input{semantics/step1-io}
+\caption{I/O transitions of STM Haskell with \colorA{finalizers}}
+\label{fig:step1-io}
+\end{figure}
+
+\clearpage
+
 %------------------------------------------------------------
 
 \subsection{Nesting}
-
-\begin{figure}
-\input{semantics/step2-stm}
-\caption{STM-level transitions of STM Haskell with \colorA{finalizers}, including \colorB{nesting checks}}
-\label{fig:step2-stm}
-\end{figure}
-
-\begin{figure}
-\input{semantics/step2-io}
-\caption{I/O-level transitions of STM Haskell with \colorA{finalizers}, including \colorB{nesting checks}}
-\label{fig:step2-io}
-\end{figure}
 
 The attentive reader might have noticed that in the extended semantics given above the following term is perfectly valid:
 $$
@@ -239,28 +239,23 @@ the set of memory locations read from or written to during the STM transition ($
 There must not be a single shared reference between the two phases -- except for references that the finalizer has only read.
 This is exactly the restriction necessary to avoid deadlocks.
 
+\begin{figure}[p]
+\input{semantics/step2-stm}
+\caption{STM transitions of STM Haskell with \colorA{finalizers} and \colorB{nesting checks}}
+\label{fig:step2-stm}
+\end{figure}
+
+\begin{figure}[p]
+\input{semantics/step2-io}
+\caption{I/O transitions of STM Haskell with \colorA{finalizers} and \colorB{nesting checks}}
+\label{fig:step2-io}
+\end{figure}
+
+\clearpage
+
 %------------------------------------------------------------
 
 \subsection{Adding invariants}
-
-\begin{figure}
-\input{semantics/final-syntax}
-\caption{The syntax of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
-\label{fig:final-syntax}
-\end{figure}
-
-\begin{figure}
-\input{semantics/final-io}
-\caption{I/O-level transitions of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
-\label{fig:final-io}
-\end{figure}
-
-
-\begin{figure}
-\input{semantics/final-stm}
-\caption{STM-level transitions of STM Haskell with invariants and \colorA{finalizers}, including \colorB{nesting checks}}
-\label{fig:final-stm}
-\end{figure}
 
 GHC's STM implementation includes the \term{alwaysSucceeds} primitive, used to introduce dynamically-checked data invariants.
 It was first described in \textcite{harris-peytonjones-2006} (where it was called \term{check}).
@@ -291,3 +286,23 @@ Note that it is required that the write set of the I/O transition ($\hat{\Sigma}
 If any of the invariants throws an exception, the new rule \rul{ARET2} applies.
 Similar to \rul{ATHROW1}, the exception is propagated to the I/O level and only allocation effects are preserved (including the allocation effects $\Delta'_i$ of the broken invariant $M_i$).
 The I/O action is not executed in this case.
+
+\begin{figure}[p]
+\input{semantics/final-syntax}
+\caption{The syntax of STM Haskell with invariants, \colorA{finalizers} and \colorB{nesting checks}}
+\label{fig:final-syntax}
+\end{figure}
+
+\begin{figure}[p]
+\input{semantics/final-io}
+\caption{I/O transitions of STM Haskell with invariants, \colorA{finalizers} and \colorB{nesting checks}}
+\label{fig:final-io}
+\end{figure}
+
+\begin{figure}[p]
+\input{semantics/final-stm}
+\caption{STM transitions of STM Haskell with invariants, \colorA{finalizers} and \colorB{nesting checks}}
+\label{fig:final-stm}
+\end{figure}
+
+\clearpage

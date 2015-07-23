@@ -168,7 +168,7 @@ The idea is to use an STM finalizer to record state-changing operations in a wri
 We do not serialize the data itself, but rather the operations on the data.
 We record function calls that can later be replayed to restore the state of the system at the time of the recording.
 A similar scheme has been implemented by the \package{acid-state} library \parencite{himmelstrup-2014}, which uses a custom lock-based state container instead of building on STM.
-The fact that \package{acid-state} is used by Hackage,\footnote{\url{http://hackage.haskell.org}} the official Haskell package repository, demonstrates the practicality of such an approach.
+The fact that \package{acid-state} is used by Hackage, the official Haskell package repository, demonstrates the practicality of such an approach.
 
 To facilitate the recording of operations, a thin layer on top of |STM| is introduced: the |TX| monad.
 Here is the |follow| function from the previous section, rewritten in |TX|:
@@ -255,12 +255,16 @@ For example, the |Follow| and |NewPost| constructors represent the |follow| and 
 %format time = "\Varid{time}"
 %format body = "\Varid{body}"
 %format author = "\Varid{author}"
+\savecolumns
 \begin{code}
 instance Database SocialDB where
     data Operation SocialDB  =  Follow UserName UserName
                              |  NewPost PostId UserName UTCTime Text
                              |  ...
-
+\end{code}
+\clearpage
+\restorecolumns
+\begin{code}
     replay (Follow name1 name2) = do
         user1 <- getUser name1
         user2 <- getUser name2
