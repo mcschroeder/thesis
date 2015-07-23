@@ -25,7 +25,7 @@ durably m = do  x <- atomically m
                 serialize x
 \end{code}
 There are two issues with this.
-First, by virtue of the serialization happening independent of the atomic block, after we have performed a transaction another thread could perform a second transaction and serialize it before we have finished serializing the first one.
+First, by virtue of the serialization happening independently of the atomic block, after we have performed a transaction another thread could perform a second transaction and serialize it before we have finished serializing the first one.
 Depending on our serialization method, we could end up with an inconsistent state between the memory of our program and what is stored on disk.
 At the very least, there is no guarantee that the ordering of events is preserved.
 Secondly, the function |serialize| might not terminate at all;
@@ -50,7 +50,7 @@ Furthermore, if the thread receives an asynchronous exception, the transaction w
 This leads us to the realization that \emph{the transaction must only commit after the data has been serialized, and the data must only be serialized after the transaction has committed}.
 We can escape the paradox by clarifying the second restriction:
 the data can in fact already be serialized after the transaction is merely \emph{guaranteed} to commit.
-Meaning: at the point of serialization, the transaction hasn't yet made its effects visible to other transactions, but there are no conflicts preventing it from doing so.
+Meaning: at the point of serialization, the transaction has not yet made its effects visible to other transactions, but there are no conflicts preventing it from doing so.
 And until serialization is finished there must be no way for any such conflicts to arise;
 for all intents and purposes, the transaction must count as committed, even though its effects are not visible yet and it could still roll back by its own volition (but not due to conflicts with other transactions).
 
@@ -72,11 +72,11 @@ atomicallyWithIO :: STM a -> (a -> IO b) -> IO b
 %atomicallyWithIO_ :: STM a -> IO () -> IO a
 
 Like the existing |atomically| operation, |atomicallyWithIO| transforms a computation of type |STM a| into an I/O action.
-Additionally, it takes a \emph{finalizer}, which is a function of type |a -> IO b|, viz. an I/O action that can depend on the result of the STM computation, and combines it with the transaction in such a way that:
+Additionally, it takes a \emph{finalizer}, which is a function of type |a -> IO b|, viz.\ an I/O action that can depend on the result of the STM computation, and combines it with the transaction in such a way that:
 
 \begin{enumerate}
 \item The finalizer is only performed if the STM transaction is guaranteed to commit.
-\item The STM transaction only commits (i.e. makes its effects visible to other transactions) if the finalizer finishes without raising an exception.
+\item The STM transaction only commits (i.e.\ makes its effects visible to other transactions) if the finalizer finishes without raising an exception.
 \end{enumerate}
 
 A detailed specification of |atomicallyWithIO| will be given in \Cref{sec:stm-fin-semantics}.
@@ -153,7 +153,7 @@ getMoney acc amount = atomicallyWithIO action finalizer
 %}
 
 What this example shows is how we can use |atomicallyWithIO| to play 
-out the revocable effects of a transaction (e.g. withdrawing money from an account) and use the results in a side-effecting manner (e.g. showing the user the new balance of her account and asking for confirmation) before committing to those effects.
+out the revocable effects of a transaction (e.g.\ withdrawing money from an account) and use the results in a side-effecting manner (e.g.\ showing the user the new balance of her account and asking for confirmation) before committing to those effects.
 
 Note that the balance we show to the user will be the final balance.
 There is no way another transaction could change it before we finish the I/O action.
@@ -176,7 +176,7 @@ Since the finalizer can be an arbitrary I/O action, the question arises:
 can we run |atomicallyWithIO| \emph{inside} |atomicallyWithIO|?
 
 Running |atomically| inside |atomically| is evidently not possible --- the type system forbids it.
-Even something like \begin{code}atomically (unsafeIOToSTM (atomically m))\end{code} won't work: GHC detects such nefariousness and throws a runtime exception.
+Even something like \begin{code}atomically (unsafeIOToSTM (atomically m))\end{code} will not work: GHC detects such nefariousness and throws a runtime exception.
 The runtime system does not support running a transaction inside another transaction, because there is no single intuitive way to resolve problems such as conflicting transactions or nested rollback.
 Luckily, it does not appear that this kind of nesting is necessary in practice or even useful.
 
@@ -269,7 +269,7 @@ baz  = atomically (foo >> bar)
 \end{code}
 Calling |baz| will lead to an inconsistent state:
 the |onCommit| action of |bar| will abort the whole transaction and so the STM effects of |foo| are rolled back, yet \emph{the I/O effects are not}.
-What's worse, there is no way from looking only at |baz| to discern that any of this is going on.
+Even worse, there is no way from looking only at |baz| to discern that any of this is going on.
 The composability of |onCommit| hides effects that in my opinion should be made explicit.
 This may not be an issue in all cases, but for serialization it clearly is.
 Using |atomicallyWithIO| is safer in this regard, at the cost of reduced composability.
@@ -347,15 +347,15 @@ The \rts{TVar}s themselves are not modified until the transaction commits.
 
 % validation and commit
 When execution returns to the \rts{ATOMICALLY{\_}FRAME}, the commit is initiated by calling \rts{stmCommitTransaction}.
-First, the \rts{TRec} is \emph{validated} by checking if the \rts{expected{\_}value} of each entry is pointer-equal to the \rts{current{\_}value} field of the corresponding \rts{TVar}, i.e. if the \rts{TVar} has changed in between the transaction starting and committing.
+First, the \rts{TRec} is \emph{validated} by checking if the \rts{expected{\_}value} of each entry is pointer-equal to the \rts{current{\_}value} field of the corresponding \rts{TVar}, i.e.\ if the \rts{TVar} has changed in between the transaction starting and committing.
 If everything is as expected, the \rts{TVar} is locked by setting \rts{current{\_}value} to point to the committing \rts{TRec}.
-If there is a mismatch, i.e. the \rts{TVar} was modified by someone else, the \rts{TRec} is discarded and the transaction restarted.
+If there is a mismatch, i.e.\ the \rts{TVar} was modified by someone else, the \rts{TRec} is discarded and the transaction restarted.
 When validation is successful for the whole \rts{TRec}, the \rts{TVar}s are one by one updated by setting their \rts{current{\_}value} to the \rts{new{\_}value} of the corresponding \rts{TRec} entry, which also unlocks them again.
 
 % atomicity
 Because all \rts{TVar}s are locked during validation and each one is only unlocked after it has been updated, the whole commit happens atomically with respect to other transactions.
 Any other transaction trying to commit at the same time will fail its validation.
-A transaction trying to read a locked \rts{TVar} will briefly block, but since \rts{TVar}s are only ever locked for very short periods of time, this is not a big deal.
+A transaction trying to read a locked \rts{TVar} will briefly block, but since \rts{TVar}s are only ever locked for very short periods of time, this is not a problem.
 
 %------------------------------------------------------------
 
@@ -416,7 +416,7 @@ For example, making calls of the following form will result in an error:
 atomically  (unsafeIOToSTM (atomically ...))
 \end{code}
 However, the system does implicitly support two other kinds of nesting:
-(1) the |orElse| operator begins a new \rts{TRec} for each of its branches; if a branch completes successfully (i.e. doesn't retry) the \rts{TRec} is merged upwards into the enclosing record;
+(1) the |orElse| operator begins a new \rts{TRec} for each of its branches; if a branch completes successfully (i.e.\ does not retry) the \rts{TRec} is merged upwards into the enclosing record;
 (2) invariants introduced by |alwaysSucceeds| are checked at commit time, where a new nested transaction is created for each invariant and completely discarded once the check is over.
 
 The form of nesting made possible by |atomicallyWithIO|, viz.\ beginning a new transaction within the finalizer of another transaction, is similar in execution to these two, except that we want to neither merge nor discard the nested \rts{TRec}, but simply commit it as-is and then return to the old transaction.
@@ -429,7 +429,7 @@ What happens when the nested transactions share variables?
 The inner transaction just reading from a \rts{TVar} is never a problem.
 It simply sees the \rts{current{\_}value} of the \rts{TVar} in memory.
 Note that since the outer transaction has not yet committed, any updates it might have made to this \rts{TVar} are still only in its \rts{TRec}.
-They are not yet globally visible, including within the transactions own finalizer.
+They are not yet globally visible, including within the transaction's own finalizer.
 This matches the semantics.
 As does the fact that an inner transaction can not write to a shared \rts{TVar}.
 If it tries to, it will block during commit, since the \rts{TVar} has been frozen by the outer transaction.

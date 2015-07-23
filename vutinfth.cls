@@ -53,7 +53,7 @@
 \RequirePackage{lmodern}%
 \RequirePackage{courier}%
 \RequirePackage[T1]{fontenc}%
-\RequirePackage[english,naustrian]{babel}%
+\RequirePackage[english,american,naustrian]{babel}%
 \RequirePackage[nodayofweek]{datetime}%
 \RequirePackage{geometry}%
 \RequirePackage{calc}%
@@ -445,7 +445,7 @@
   english=Master of Science,
   naustrian=Master of Science]{MdegMaster}%
 \CreatePolylingual[
-  english=Diplom-Ingenieur,
+  english=Master of Science,
   naustrian=Diplom-Ingenieur]{MdegDiplMale}%
 \CreatePolylingual[
   english=Diplom-Ingenieurin,

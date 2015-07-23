@@ -51,12 +51,12 @@ Since looking up an account from the |Map| involves a |readTVar| operation, the 
 The drawback of this pattern of simply wrapping a |Map| inside a |TVar| is that when adding or removing elements of the |Map|, one has to replace the |Map| inside the |TVar| wholesale.
 Thus all concurrently running transactions that have accessed the |Map| become invalid and will have to restart once they try to commit.
 Depending on the exact access patterns, this can be a serious cause of contention.
-For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.3 million retries.\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}}
+For example, one benchmark running on a 16-core machine, with 16 threads each trying to commit a slice out of \num{200 000} randomly generated transactions, resulted in over 1.3 million retries.\footnote{A more detailed breakdown of this benchmark can be found in \Cref{sec:ttrie-evaluation}.}
 That is some serious overhead!
 
 The underlying problem is that the whole |Map| is made transactional, when we only ever care about the subset of the |Map| that is relevant to the current transaction.
-If transaction $A$ updates an element with key $k_1$ and transaction $B$ deletes an element with key $k_2$, then those two transactions only really conflict if $k_1 = k_2$;
-if $k1$ and $k2$ are different, then there is no reason for either of the transactions to wait for the other one.
+If transaction $A$ updates an element with key $k_1$ and transaction $B$ deletes an element with key $k_2$, then those two transactions only conflict if $k_1 = k_2$;
+if $k_1$ and $k_2$ are different, then there is no reason for either of the transactions to wait for the other one.
 But the |Map| does not know it is part of a transaction, and the |TVar| does not know nor care about the structure of its contents.
 And so the transactional net is cast too wide.
 
@@ -89,21 +89,21 @@ Most of the array nodes would only be sparsely populated.
 To not waste space, the arrays are actually used in conjunction with a bitmap of length $2^k$ that encodes which positions in the array are actually filled.
 If a bit is set in the bitmap, then the (logical) array contains an element at the corresponding index.
 The actual array only has a size equal to the bit count of the bitmap, and after obtaining a (logical) array index $i$ in the manner described above, it has to be converted to an index into the sparse array via the formula $\#((i-1)\land bmp)$, where $\#$ is a function that counts the number of bits and $bmp$ is the array's bitmap.
-To ensure that the bitmap can be efficiently represented, $k$ is usually chosen so that $2^k$ equals the size of the native machine word, e.g. on 64-bit systems $k=6$.
+To ensure that the bitmap can be efficiently represented, $k$ is usually chosen so that $2^k$ equals the size of the native machine word, e.g.\ on 64-bit systems $k=6$.
 
 The \emph{concurrent} trie extends the hash trie by adding \emph{indirection nodes} above every array node.
 An indirection node simply points to the array node underneath it.
 Indirection nodes have the property that they stay in the trie even if the nodes above or below them change.
 When inserting an element into the trie, instead of directly modifying an array node, an updated copy of the array node is created and an atomic compare-and-swap operation on the indirection node is used to switch out the old array node for the new one.
-If the compare-and-swap operation fails, meaning another thread has already modified the array while we weren't looking, the operation is retried from the beginning.
-This simple scheme, were indirection nodes act as barriers for concurrent modification, ensures that there are no lost updates or race conditions of any kind, while keeping all operations completely lock-free.
+If the compare-and-swap operation fails, meaning another thread has already modified the array while we were not looking, the operation is retried from the beginning.
+This simple scheme, where indirection nodes act as barriers for concurrent modification, ensures that there are no lost updates or race conditions of any kind, while keeping all operations completely lock-free.
 A more thorough discussion, including proofs of linearizability and lock-freedom, can be found in the paper by Prokopec et al.\ \parencite*{prokopec-et-al-2011}.
 A Haskell implementation of the concurrent trie, as a mutable data structure in |IO|, is also available \parencite{schroeder-2014}.
 
 The \emph{transactional} trie is an attempt to lift the concurrent trie into an STM context.
 The idea is to use the lock-freedom of the concurrent trie to make a non-contentious data structure for STM.
 This is not entirely straightforward, as there is a natural tension between the atomic compare-and-swap operations of the concurrent trie, which are pessimistic and require execution inside the |IO| monad, and optimistic transactions as implemented by STM.
-While it is possible to simulate compare-and-swap using |TVar|s and |retry|\footnote{Like this, for example:
+While it is possible to simulate compare-and-swap using |TVar|s and |retry|,\footnote{Like this, for example:
 \begin{code}
 stmCAS :: TVar a -> a -> a -> STM ()
 stmCAS var old new = do
@@ -112,11 +112,11 @@ stmCAS var old new = do
         then writeTVar var new
         else retry
 \end{code}
-}, this would entangle the indirection nodes with the rest of the transaction, which is exactly the opposite of what we want.
+} this would entangle the indirection nodes with the rest of the transaction, which is exactly the opposite of what we want.
 To keep the non-blocking nature of the concurrent trie, the indirection nodes need to be kept independent of the transaction as a whole, which should only hinge on the actual values stored in the trie's leaves.
 If two transactions were to cross paths at some indirection node, but otherwise concern independent elements of the trie, then neither transaction should have to retry or block.
 Side-effecting compare-and-swap operations that run within but independently of a transaction are the only way to achieve this.
-Alas, the type system, with good reason, won't just allow us to mix |IO| and |STM| actions, so we have to circumvent it from time to time using |unsafeIOToSTM|.
+Alas, the type system, with good reason, will not just allow us to mix |IO| and |STM| actions, so we have to circumvent it from time to time using |unsafeIOToSTM|.
 We will need to justify every single use of |unsafeIOToSTM| and ensure it does not lead to violations of correctness.
 Still, bypassing the type system is usually a bad sign, and indeed we will see that correctness can only be preserved at the cost of memory efficiency, at least in an STM implementation without finalizers.
 
@@ -211,7 +211,7 @@ The one big difference to a concurrent trie lies in the definition of the |Leaf|
 Basically, a |Leaf| is a key-value mapping.
 It stores a key |k| and a value |v|.
 But the way it stores |v| determines how the trie behaves in a transactional context.
-Let us build to it step by step:
+Let us build it step by step:
 \begin{enumerate}
 \item Imagine if |Leaf| were defined exactly like in a concurrent trie:
 \begin{code}
@@ -350,8 +350,8 @@ The |insertLeaf| function does pretty much the same, except for |Array| nodes:
         return (Array a')
 \end{code}
 
-In case of a key collision, things are a tiny bit more involved.
-The |growTrie| function puts the colliding leaves into a new level of the trie, where they hopefully won't collide anymore:
+In case of a key collision, things are a slightly more involved.
+The |growTrie| function puts the colliding leaves into a new level of the trie, where they hopefully will not collide anymore:
 \restorecolumns
 \begin{code}
     growTrie level a h2 leaf2 leaf1 = do
@@ -370,7 +370,7 @@ The |growTrie| function puts the colliding leaves into a new level of the trie, 
                     newIORef (Array a)
 \end{code}
 The use of |casIORef| here is once again harmless, as |combineLeaves| only uses |IO| to allocate new |IORef|s.
-The |mkPair| function for making a two-element |SparseArray| curiously returns a |Maybe|, because it is possible that on a given level of the trie the two keys hash to the same array index and so the leaves can't both be put into a single array.
+The |mkPair| function for making a two-element |SparseArray| returns a |Maybe|, because it is possible that on a given level of the trie the two keys hash to the same array index and so the leaves can not both be put into a single array.
 In that case, another new indirection node has to be introduced into the trie and the procedure repeated.
 If at some point the last level has been reached, the leaves just go into an overflow |List| node.
 
@@ -506,13 +506,13 @@ An update operation is simply an insert where the key is already present in the 
 
 The simple |TVar|-wrapped |HashMap| from \package{unordered-containers} performs exceptionally well for lookups.
 This is to be expected: the transactional overhead for reading a single |TVar| is practically non-existent and the STM runtime system can perform read-only transactions completely lock-free.
-The greater complexity of \package{ttrie} and \package{stm-containers} results in a greater overhead; they perform up to 10 times slower, although they scale pretty well with the number of threads; \package{ttrie} is a about 30\% faster than \package{stm-containers}.
+The greater complexity of \package{ttrie} and \package{stm-containers} results in a greater overhead; they perform up to 10 times slower, although they scale pretty well with the number of threads; \package{ttrie} is about 30\% faster than \package{stm-containers}.
 Curiously, \package{stm-containers} exhibits some contention for this read-only operation.
 
 Updates are similarly well-suited to the |HashMap|.
 Since the keys are already present in the map, there are no structural changes necessary.
 The transactions are fast enough so that even though there is a small amount of contention --- as all transactions have to go through a single |TVar| --- the number of retries stays low enough to not matter.
-The |HashMap| is roughly twice as fast as the \package{ttrie}, which is roughly twice as fast int his scenario as the \package{stm-containers} map.
+The |HashMap| is roughly twice as fast as the \package{ttrie}, which is roughly twice as fast in this scenario as the \package{stm-containers} map.
 
 The story looks entirely different for the insert and delete operations.
 Here, the |TVar|-wrapped |HashMap| does not scale at all.

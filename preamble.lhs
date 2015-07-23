@@ -9,6 +9,7 @@
 \usepackage{siunitx}
 
 \setsecnumdepth{subsection} % enumerate subsections
+%\settocdepth{subsection} % TODO: include subsections in TOC ??
 
 \usepackage{fontspec}
 \setmonofont
@@ -31,7 +32,7 @@
 
 % for american-style quotes
 % \usepackage[american]{babel}
-\usepackage[english=american]{csquotes}
+\usepackage[english=american,autostyle=true]{csquotes}
 \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
 \renewcommand*{\mkcitation}{}
 
@@ -66,7 +67,7 @@
 \newcommand{\ctxP}[1]{\mathbb{P}[#1]}
 \newcommand{\ctxE}[1]{\mathbb{E}[#1]}
 \newcommand{\ctxS}[1]{\mathbb{S}[#1]}
-\newcommand{\rul}[1]{\textit{(#1)}}
+\newcommand{\rul}[1]{(#1)}
 
 %---------------------------------------------------
 % GHC runtime system identifiers

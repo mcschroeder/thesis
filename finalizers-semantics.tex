@@ -2,7 +2,7 @@
 \label{sec:stm-orig-semantics}
 
 I now formalize my design by giving an operational semantics.
-In this Section, I present an overview of the original semantics of STM Haskell as described by \textcite{harris-et-al-2005}, including the revised exception semantics from their post-publication appendix.
+In this section, I present an overview of the original semantics of STM Haskell as described by \textcite{harris-et-al-2005}, including the revised exception semantics from their post-publication appendix.
 Using this as a foundation, I will then add the changes necessary to implement finalizers in \Cref{sec:stm-fin-semantics}.
 There I will also include the invariant semantics described by \textcite{harris-peytonjones-2006}.
 
@@ -22,8 +22,7 @@ They are only ever performed as premises of the \term{atomically} operator and t
 Simply requiring that \term{atomically} must reduce (on the STM level) to either \term{return} or \term{throw}, and not \term{retry}, obviates the need for modeling transaction logs or rollback.
 These matters are left for the implementation.
 
-%TODO: use \paragraph{} for these?
-\subsubsection{Syntax}
+\paragraph{Syntax}
 
 \begin{figure}
 \input{semantics/orig-syntax}
@@ -58,7 +57,7 @@ The program evaluation context $\mathbb{P}$ arbitrarily chooses a thread from th
 This corresponds to the scheduler of a real implementation.
 STM terms are then evaluated using the context $\mathbb{S}$.
 
-\subsubsection{Administrative transitions}
+\paragraph{Administrative transitions}
 
 \begin{figure}
 \input{semantics/orig-admin}
@@ -75,7 +74,7 @@ It uses a function $\mathcal{V}$, which is entirely standard and whose definitio
 % lifting
 The I/O level rule \rul{ADMIN} lifts administrative rules into the I/O world. \rul{AADMIN} does the same for STM.
 
-\subsubsection{I/O transitions}
+\paragraph{I/O transitions}
 
 \begin{figure}
 \input{semantics/orig-io}
@@ -109,11 +108,11 @@ The rule \rul{ARET} concerns STM terms that ultimately evaluate to \term{return}
 This means the STM transaction was successfully completed and the updated heap $\Theta'$ becomes visible on the I/O level.
 %
 % athrow
-If, on the other hand, the STM term evaluates to $\term{throw}\ N$, i.e. if the STM transaction throws an exception $N$, the exception is propagated to the I/O level and the new heap discarded.
+If, on the other hand, the STM term evaluates to $\term{throw}\ N$, i.e.\ if the STM transaction throws an exception $N$, the exception is propagated to the I/O level and the new heap discarded.
 Only the allocation effects $\Delta'$ are kept and made globally visible.
 This is necessary because the exception value $N$ may contain references to variables that were allocated inside the transaction and we do not want to leave dangling pointers around.
 
-\subsubsection{STM transitions}
+\paragraph{STM transitions}
 
 \begin{figure}
 \input{semantics/orig-stm}
@@ -134,7 +133,7 @@ Most of the STM rules are quite standard.
 Note how \rul{NEW} makes allocation effects explicit by modifying $\Delta$.
 
 % or1-3
-The rules \rul{OR1-3} handle the kind of nested transactions made possible by the \term{orElse} combinator.\footnote{Not to be confused with the nesting of \term{atomically} calls described in \Cref{subsec:stm-example-nesting}}
+The rules \rul{OR1-3} handle the kind of nested transactions made possible by the \term{orElse} combinator.\footnote{Not to be confused with the nesting of \term{atomically} calls described in \Cref{subsec:stm-example-nesting}.}
 When encountering a term of the form $M_1\ \term{orElse}\ M_2$ we always begin by inspecting the left branch $M_1$.
 If this evaluates to a \term{return} \rul{OR1} or a \term{throw} \rul{OR2}, the result is propagated and all memory effects are retained.
 Keep in mind that we are still on the STM level.
@@ -149,7 +148,7 @@ If $M$ throws an exception \rul{XSTM2}, that exception is given to the handler $
 If $M$ evaluates to \term{retry} \rul{XSTM3}, all effects are discarded.
 
 This last set of rules was introduced in the post-publication appendix of \textcite{harris-et-al-2005} to alleviate a subtle issue concerning leaking of effects.
-For a more elaborate discussion, of this issue and of the whole system, refer to that paper.
+For a more elaborate discussion of this issue and of the whole system, refer to that paper.
 
 %------------------------------------------------------------
 
@@ -179,13 +178,13 @@ The finalizer $F$ given to \term{atomicallyWithIO} is simply ignored in this cas
 
 % aret
 The heart of the change is to be found in rule \rul{ARET}, which now has an additional premise:
-After the atomic block returns, the finalizer given to \term{atomicallyWithIO} must also evaluate to \term{return}.
+after the atomic block returns, the finalizer given to \term{atomicallyWithIO} must also evaluate to \term{return}.
 It does so by making zero or more \emph{I/O-level} transitions.
 Note that these transitions begin with the original unchanged heap $\Theta$.
 The finalizer executes in a global context, where the results of the STM transaction are not yet visible.
 Thus the finalizer cannot know about the modified heap $\Theta'$.
 (It must know about the allocation effects $\Delta'$, however:
-$N$ could contain a reference to a newly allocated variable and we don't want any dangling pointers.)
+$N$ could contain a reference to a newly allocated variable and we do not want any dangling pointers.)
 The final heap resulting from the \rul{ARET} transition is the union of the STM result heap $\Theta'$ with the result heap of the I/O transition, $\hat{\Theta}$.
 
 % athrow2
@@ -226,7 +225,7 @@ $$
 $$
 It is a record of all memory operations done by a transaction.
 The labels \textsc{r} and \textsc{w} denote whether a particular memory location was read from or written to, respectively.
-As a shorthand notation, we define $\Sigma_\textsc{w}=\{r \mid (r,\textsc{w}) \in \Sigma\}$, i.e. the set of references in $\Sigma$ that have been used in a write operation.
+As a shorthand notation, we define $\Sigma_\textsc{w}=\{r \mid (r,\textsc{w}) \in \Sigma\}$, i.e.\ the set of references in $\Sigma$ that have been used in a write operation.
 $\Sigma_\textsc{r}$ and $\Sigma_\textsc{rw}$ are defined analogously.
 We also define $\Sigma\vert_\Delta=\{ (r,\textsc{w}) \in \Sigma \mid r \in dom(\Delta)\}$, which restricts $\Sigma$ to those labelled references that correspond to the allocations recorded in $\Delta$.
 
@@ -236,7 +235,7 @@ All other rules treat $\Sigma$ in very much the same way as the heap.
 
 % io
 Finally, the purpose of $\Sigma$ becomes clear on the I/O-level, where rules \rul{ARET} and \rul{ATHROW2} include a new condition above the line:
-The set of memory locations read from or written to during the STM transition ($\Sigma'_\textsc{rw}$) and the set of memory locations written to during the finalizing I/O transition ($\hat{\Sigma}_\textsc{w}$) must be entirely distinct.
+the set of memory locations read from or written to during the STM transition ($\Sigma'_\textsc{rw}$) and the set of memory locations written to during the finalizing I/O transition ($\hat{\Sigma}_\textsc{w}$) must be entirely distinct.
 There must not be a single shared reference between the two phases -- except for references that the finalizer has only read.
 This is exactly the restriction necessary to avoid deadlocks.
 

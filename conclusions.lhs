@@ -3,7 +3,7 @@
 \chapter{Conclusions \& Perspectives}
 \label{chap:conclusions}
 
-I have presented two approaches of combining transactions with side-effects, with the goal of adding \emph{durability} and eliminating \emph{contention}:
+I have presented two new approaches of combining transactions with side-effects, with the goal of adding \emph{durability} and eliminating \emph{contention}:
 
 \begin{itemize}
 \item \textbf{STM Finalizers} are a global, top-down approach of adding arbitrary I/O during transactional commit.
@@ -34,12 +34,12 @@ Unlike finalizers, however, Twilight STM does not support nesting of transaction
 Since \package{twilight-stm} is a standalone library, without GHC runtime support, its performance is drastically reduced compared to native STM.
 It is also not compatible with existing STM code.
 
-\bigskip
+\medskip
 
 The |AdvSTM| monad from the \package{stm-io-hooks} package was already mentioned in \Cref{sec:finalizers-related-work}.
 In addition to the design differences described there (it is bottom-up rather than top-down; it allows for higher composability, even though this may be problematic in conjunction with I/O), it also has the drawback of being incompatible with existing STM code.
 
-\bigskip
+\medskip
 
 There have been a number of other STM implementations trying to reconcile transactions and side-effects, but all in the context of weakly typed, non-functional languages:
 
@@ -57,17 +57,17 @@ It has a concept of ``privileged'' transactions, which can not be rolled back an
 
 The xCall interface for the Intel STM compiler \parencite{volos-et-al-2009} enables transactions to make system calls, through a combination of delaying the execution of calls until the transaction commits and undoing the side effects of some immediately executed calls should the transaction abort.
 
-\bigskip
+\medskip
 
 \textcite{sonmez-et-al-2007} extend Haskell's STM with an |unreadTVar| operation that removes a transactional variable from the read set of a transaction.
 A data structure like a linked list normally has a read set that is directly proportional to the length of the list, increasing the potential for false conflicts and aborts.
 By unreading |TVar|s, one can traverse a list with a small fixed-size read set.
 This results in much faster execution times, although it can lead to unsafe situations, especially when composing with functions that are not aware of |unreadTVar|.
 
-\bigskip
+\medskip
 
 Transactional boosting \parencite{herlihy-koskinen-2008} is a methodology for transforming highly-concurrent linearizable objects into highly-concurrent transactional objects, provided they satisfy certain regularity properties.
-For an object to be boosted, it's methods must be commutative, or otherwise be protected by an abstract lock, and they must have fast inverses, which will be executed if the transaction fails to commit; the data type itself is treated like a black box.
+For an object to be boosted, its methods must be commutative, or otherwise be protected by an abstract lock, and they must have fast inverses, which will be executed if the transaction fails to commit; the data type itself is treated like a black box.
 \textcite{du-bois-et-al-2014} describe a |boost| function for Haskell, as an extension to a high-level STM implementation \parencite{du-bois-2011}.
 
 The transactional trie is not a boosted version of the concurrent trie.
@@ -81,14 +81,14 @@ In particular, they enable interaction with remote systems.
 Building a distributed transactional memory system on top of finalizers would be the next logical step, leveraging existing distributed computation frameworks such as Cloud Haskell \parencite{epstein-2011, coutts-et-al-2015}.
 It would be interesting to see if and how such a system could be implemented using just finalizers, and how it would compare to more fundamental approaches like the \package{DSTM} library \parencite{kupke-2010} or Decent STM \parencite{bieniusa-2011a}.
 
-\bigskip
+\medskip
 
 By allowing nesting of transactions, finalizers can truly be arbitrary I/O actions, including those that are themselves composed of STM transactions --- like parts of the Cloud Haskell platform.
 But in the current design, programmer error in the form of circular dependencies between inner and outer transactions is only detected at runtime, even though it should be possible to do this statically.
 One could write a compiler plugin or, more radically, rewrite the STM API to be more strongly typed, perhaps by using an effect system \parencite{orchard-petricek-2014}.
 Such a new API would be incompatible with current STM code, but a full redesign of the interface could open up other possibilities.
 
-\bigskip
+\medskip
 
 The TX monad could also benefit from a more strongly typed API, as a lot of bookkeeping is still up to the programmer.
 Different approaches to designing a persistency layer on top of finalizers should be explored.
@@ -96,7 +96,7 @@ Additionally, there are some low-hanging fruits in the current design:
 creating checkpoints of the database state at regular intervals and compressing the on-disk log files would save memory and greatly reduce replay time at startup.
 There is also the possibility of making the database distributed, with or without relying on a wholly distributed STM system underneath.
 
-\bigskip
+\medskip
 
 The concurrent trie, on which the transactional trie is based, supports an efficient non-blocking snapshot operation \parencite{prokopec-et-al-2012}.
 This allows, for example, to fold over the trie while it is concurrently modified, without loss of consistency.

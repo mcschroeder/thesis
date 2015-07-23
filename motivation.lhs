@@ -25,7 +25,7 @@ In particular, the contributions of my work are:
 \begin{itemize}
 \item A new STM primitive called |atomicallyWithIO| that allows the user to attach a \emph{finalizer} to an STM transaction.
 Such finalizers are arbitrary I/O actions that can be used to serialize transactional data or incorporate external information into a transaction.
-I provide a detailed discussion of the semantics of this extension to STM, as well as my implementation of it in the Glasgow Haskell Compiler. (\Cref{chap:finalizers})
+I provide a detailed discussion of the semantics of this extension to STM, as well as my implementation of it in the Glasgow Haskell Compiler (GHC). (\Cref{chap:finalizers})
 
 \item A contention-free STM data structure, the \emph{transactional trie}.
 It is based on the concurrent trie, but lifted into an STM context and combines transactions with carefully considered internal side effects.
@@ -40,7 +40,7 @@ In the remainder of this introductory chapter, I will give a brief overview of H
 
 %==========================================
 
-\section{STM in Haskell}
+\section*{Background: STM in Haskell}
 
 Here are the main data types and operations of STM in Haskell:
 \begin{code}
@@ -98,9 +98,8 @@ The standard functions |throw| and |catch| act as expected:
 if an exception occurs inside an atomic block and is not caught, the transaction's effects are discarded and the exception is propagated.
 
 % invariants
-Another interesting part of Haskell's STM are data invariants.
+GHC's implementation of STM also contains support for data invariants.
 Using the |alwaysSucceeds| function, one can introduce an invariant over transactional variables that is dynamically checked on every atomic update.
-%This mechanism is implemented in a surprisingly efficient manner.
 
 For more background on Haskell's STM, including its implementation, see the original STM papers \parencite{harris-et-al-2005, harris-peytonjones-2006}.
 For a more thorough exploration of not only STM but also other Haskell concurrency mechanisms, read Simon Marlow's excellent book on that topic~\parencite{marlow-2013}.

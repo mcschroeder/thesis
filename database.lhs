@@ -66,7 +66,7 @@ Each user keeps a list of the posts on her own timeline and also keeps track of 
 Posts are identified by a globally unique |PostId| and are represented by the |Post| type, which contains the body of the post as well as its author and the time it was created.
 
 Behind the |Map| type of the |users| and |posts| collections lies the transactional trie from \Cref{chap:ttrie}.
-This guarantees that there won't be any contention when our millions of future users all post something to our site at the same time.
+This guarantees that there will be no contention when our millions of future users all post something to our site at the same time.
 
 Since the types contain transactional variables, computations on them must be done in the STM monad.
 For example, this is how we compute a user's feed:
@@ -150,13 +150,13 @@ newPost postId author time body db = do
     return post
 \end{code}
 %}
-The thing of note here is that in order to generate a random ID for the post and to get the current time, we have to use |unsafeIOToSTM| to interleave I/O actions with the transaction.
+In order to generate a random ID for the post and to get the current time, we have to use |unsafeIOToSTM| to interleave I/O actions with the transaction.
 In these cases, this is perfectly safe:
 we are either only reading from the outside world (|getCurrentTime|) or are otherwise producing only harmless side effects (|randomIO|, which updates the internal state of its random number generator).
 If the transaction aborts, no harm is done.
 If the transaction retries, we simply get a new time and generate a new random ID, which is just what we want.
 
-We've now seen pretty much the whole back-end of the social network, apart from |createUser|, which is not that different from |createPost|.
+We have now seen pretty much the whole back-end of the social network, apart from |createUser|, which is not that different from |createPost|.
 Using STM, we managed to arrive very quickly at a functional prototype.
 Of course, since we are using \emph{only} STM, all effects stay purely in memory.
 If the server is shut down, the data is gone.
@@ -171,7 +171,7 @@ A similar scheme has been implemented by the \package{acid-state} library \paren
 The fact that \package{acid-state} is used by Hackage,\footnote{\url{http://hackage.haskell.org}} the official Haskell package repository, demonstrates the practicality of such an approach.
 
 To facilitate the recording of operations, a thin layer on top of |STM| is introduced: the |TX| monad.
-Here is the |follow| function from the previous section, rewritten using |TX|:
+Here is the |follow| function from the previous section, rewritten in |TX|:
 %{
 %format user = "\Varid{user}"
 %format user1
@@ -185,7 +185,7 @@ follow user1 user2 = do
         modifyTVar (followers user2) (Set.insert user1)
 \end{code}
 %}
-This demonstrates the two main things we do in |TX|: lifting functions from the underlying |STM| monad using |liftSTM| and recording database operations using |record|.
+This demonstrates the two main tasks we do in |TX|: lifting functions from the underlying |STM| monad using |liftSTM| and recording database operations using |record|.
 Note how |TX| is parameterized by the type of database, in our case |SocialDB|.
 
 An updated version of the social network can be found in the \texttt{social1} folder of the sample code.
@@ -207,12 +207,12 @@ createPost author body = do
     liftSTM $ newPost postId author time body db
 \end{code}
 %}
-Notice that the |TX| version of |createPost| is virtually identical to the pure STM version, save for a few lifts and the call to |record|.
+Notice that the |TX| version of |createPost| is virtually identical to the pure STM version, except for a few lifts and the call to |record|.
 The existing |STM| functions |newPost| and |newUniquePostId| could be reused and did not have to be touched at all.
 
 \bigskip
 The implementation of |TX| itself is pretty simple.
-It is a strict state transformer\footnote{from the \package{transformers} package \parencite{gill-paterson-2014}} on top of |STM|, keeping a list of recorded operations, as well as allowing easy access to the root database type:
+It is a strict state transformer\footnote{The \package{transformers} package \parencite{gill-paterson-2014} provides a variety of monad transformers.} on top of |STM|, keeping a list of recorded operations, as well as allowing easy access to the root database type:
 %{
 %format op = "\Varid{op}"
 %format log = "\Varid{log}"
@@ -231,7 +231,7 @@ liftSTM = TX . lift
 \end{code}
 %}
 |TX| could be implemented in a more strongly typed fashion, using a combination reader/writer monad to emphasize that the database reference |d| is constant and that the operation log is strictly write-only.
-Alas, using |StateT| is much more efficient, in addition to being more convenient, as writer transformers do not work in constant space.\footnote{see \url{https://mail.haskell.org/pipermail/libraries/2013-March/019528.html}}
+Alas, using |StateT| is much more efficient, in addition to being more convenient, as writer transformers do not work in constant space.\footnote{See \url{https://mail.haskell.org/pipermail/libraries/2013-March/019528.html}.}
 
 The argument to |record| is an |Operation d|, which is an associated type of the |Database| class:
 \begin{code}
@@ -311,7 +311,7 @@ Due to the simplicity of the design and the nature of the underlying STM abstrac
 They are not fundamental, but they indicate that in order to achieve higher scalability (in terms of application complexity), a more sophisticated interface might be needed.
 
 \paragraph{Using exceptions to handle failure.}
-In some of the code above we've used a function |getUser| to retrieve a user from the database by name.
+In some of the code above we have used a function |getUser| to retrieve a user from the database by name.
 But what happens if there is no user for the given name?
 Usually, we want to make the possibility of failure explicit in the types and so would expect |getUser| to have a type like
 \begin{code}
@@ -330,7 +330,7 @@ do  eve <- newUser "Eve"
         Nothing    -> return ()
 \end{code}
 If |getUser| returns |Nothing|, then even though the block returns without further action, |eve| is still created when the transaction ultimately commits.
-Of course this particular example is somewhat contrived, as we could easily rearrange the functions to postpone the creation of |eve| until after we've established that |adam| exists.
+Of course this particular example is somewhat contrived, as we could easily rearrange the functions to postpone the creation of |eve| until after we have established that |adam| exists.
 But you can imagine that this may not always be possible and does not scale well.
 %}
 
@@ -356,7 +356,7 @@ getUser name = do
 In the majority of uses, the desired outcome of a function like |getUser| in case the user is not found is to abort the transaction.
 There are certainly ways to avoid spooky exceptions as much as possible, e.g.\ by adding an exception monad transformer layer to |TX| (something like |Control.Monad.Trans.Except| from \package{transformers}).
 But in the end a real exception would need to be thrown regardless, in order to signal to the STM runtime that the transaction needs to be aborted.
-I have favored the simpler design and it seems to work well in practice.
+I have favored the simpler design and it seems to work well in practice, as indicated by our example application.
 
 \paragraph{Double replay.}
 The |record| function gives us great flexibility in how and when to record operations.
@@ -369,10 +369,10 @@ g  = record G
 \end{code}
 Running |f| first records |F| and then calls |g| and so also records |G|.
 Replaying this recording will first replay |F|, which runs |f| which calls |g|, and then it will replay |G|, which calls |g| again.
-We've now called |g| twice, even though it was only executed once during the original run!
+We have now called |g| twice, even though it was only executed once during the original run!
 This is unfortunate, because it means that to avoid such situations, the user has to keep the call graph of recordable functions in mind, and there is no help from the compiler.
 
-This makes one wonder: why do we record on this semi-high level -- that apparently is not high enough to save us from such basic yet easily overlooked mistakes -- instead of just directly recording every primitive |writeTVar| operation?
+This makes one wonder: why do we record on this semi-high level -- that obviously is not high enough to save us from such basic yet easily overlooked mistakes -- instead of just directly recording every primitive |writeTVar| operation?
 We may not be able to serialize a |TVar| itself, but we can certainly serialize its contents.
 Could we not have a function
 \begin{code}
