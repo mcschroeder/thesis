@@ -440,7 +440,7 @@ It simply sees the \rts{current{\_}value} of the \rts{TVar} in memory.
 Note that since the outer transaction has not yet committed, any updates it might have made to this \rts{TVar} are still only in its \rts{TRec}.
 They are not yet globally visible, including within the transaction's own finalizer.
 This matches the semantics.
-As does the fact that an inner transaction can not write to a shared \rts{TVar}.
+As does the fact that an inner transaction cannot write to a shared \rts{TVar}.
 If it tries to, it will block during commit, since the \rts{TVar} has been frozen by the outer transaction.
 Meanwhile, the outer transaction is waiting for the inner transaction to finish.
 The runtime system immediately detects this deadlock and throws an exception, gracefully aborting the whole transaction.

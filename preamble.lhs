@@ -45,7 +45,7 @@
 \usepackage{hyperref}
 \usepackage[noabbrev]{cleveref}
 
-\hypersetup{colorlinks=true}
+\hypersetup{colorlinks=true} %TODO: disable for print version
 \hypersetup{linktocpage=true}
 
 \hypersetup{pdftitle={Durability and Contention in Software Transactional Memory}}

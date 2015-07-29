@@ -15,7 +15,7 @@ However, a few minor modifications have been made to better reflect the current 
 The key idea is to separate \emph{I/O transitions} (``$\rightarrow$'', \Cref{fig:orig-io}) from \emph{STM transitions} (``$\Rightarrow$'', \Cref{fig:orig-stm}).
 Execution proceeds by non-deterministically choosing a thread and performing a single I/O transition.
 Thus, the execution of different threads may be interleaved and we have concurrency on the I/O level.
-However, STM transitions can not interleave.
+However, STM transitions cannot interleave.
 They are only ever performed as premises of the \term{atomically} operator and the resulting state change is thus regarded as a single atomic step on the I/O level.
 
 % logs and rollback

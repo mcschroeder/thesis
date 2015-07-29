@@ -50,10 +50,10 @@ They use a technique called single-owner read locks and allow only one irrevocab
 \textcite{harris-2005} extends a Java STM system with external actions, which can perform operations directly on the heap of a given context.
 When an atomic block finishes, it promotes heap updates from nested contexts up to its parent context.
 
-\textcite{spear-et-al-2008} compare several mechanisms for ``inevitable'' transactions, which can not abort and of which only one can run at a time.
+\textcite{spear-et-al-2008} compare several mechanisms for ``inevitable'' transactions, which cannot abort and of which only one can run at a time.
 
 JudoSTM \parencite{olszewski-et-al-2007} is a system that uses dynamic binary-rewriting to transform C and C++ applications to support transactional execution.
-It has a concept of ``privileged'' transactions, which can not be rolled back and can be used to make system calls.
+It has a concept of ``privileged'' transactions, which cannot be rolled back and can be used to make system calls.
 
 The xCall interface for the Intel STM compiler \parencite{volos-et-al-2009} enables transactions to make system calls, through a combination of delaying the execution of calls until the transaction commits and undoing the side effects of some immediately executed calls should the transaction abort.
 

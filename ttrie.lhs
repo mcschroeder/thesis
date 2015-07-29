@@ -370,7 +370,7 @@ The |growTrie| function puts the colliding leaves into a new level of the trie, 
                     newIORef (Array a)
 \end{code}
 The use of |casIORef| here is once again harmless, as |combineLeaves| only uses |IO| to allocate new |IORef|s.
-The |mkPair| function for making a two-element |SparseArray| returns a |Maybe|, because it is possible that on a given level of the trie the two keys hash to the same array index and so the leaves can not both be put into a single array.
+The |mkPair| function for making a two-element |SparseArray| returns a |Maybe|, because it is possible that on a given level of the trie the two keys hash to the same array index and so the leaves cannot both be put into a single array.
 In that case, another new indirection node has to be introduced into the trie and the procedure repeated.
 If at some point the last level has been reached, the leaves just go into an overflow |List| node.
 
