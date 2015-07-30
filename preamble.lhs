@@ -5,11 +5,9 @@
 \usepackage{fancyvrb}
 \usepackage{array}
 \usepackage{adjustbox}
-% \usepackage[justification=centering]{caption}
 \usepackage{siunitx}
 
 \setsecnumdepth{subsection} % enumerate subsections
-%\settocdepth{subsection} % TODO: include subsections in TOC ??
 
 \usepackage{fontspec}
 \setmonofont
@@ -20,10 +18,6 @@
    ]
    {DejaVuSansMono.ttf}
 
-
-%\newcommand{\clearemptydoublepage}{\clearpage{\pagestyle{empty}\cleardoublepage}}
-
-%\usepackage{emptypage}
 
 %---------------------------------------------------
 % biblatex
@@ -37,7 +31,6 @@
 \renewcommand*{\mkcitation}{}
 
 \addbibresource{thesis.bib}
-%TODO correct proceedings cite
 
 %---------------------------------------------------
 % hyperref
@@ -45,7 +38,8 @@
 \usepackage{hyperref}
 \usepackage[noabbrev]{cleveref}
 
-\hypersetup{colorlinks=true} %TODO: disable for print version
+\hypersetup{colorlinks=true,citecolor=red} %TODO: disable for print version
+%\hypersetup{colorlinks=false}
 \hypersetup{linktocpage=true}
 
 \hypersetup{pdftitle={Durability and Contention in Software Transactional Memory}}
