@@ -54,7 +54,7 @@ SET_ALLOC_PLOT = "set style data linespoint; \
                   set ytics (5e6, 125e6, 250e6, 500e6, 1e9); \
                   set ytics nomirror"
 
-left_margin=0.2
+left_margin=0.13
 gap=0.025
 
 col_size = (1 - left_margin - (columns-1) * gap) / columns
@@ -140,6 +140,12 @@ plot file("update","alloc") @POINTS
 @COL3
 @SET_ALLOC_PLOT
 plot file("lookup","alloc") @POINTS
+
+set label "\\num{200 000} transactions" at screen 0.6,screen 0.09
+set label "1 operation per transaction" at screen 0.6,screen 0.065
+
+set key autotitle columnheader
+set key at screen 0.5,screen 0.1
 
 @COL4
 @SET_ALLOC_PLOT

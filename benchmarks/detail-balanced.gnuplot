@@ -18,7 +18,7 @@ set style line 2 lc rgb "#377eb8" lw 2 pt 7     # blue
 set style line 3 lc rgb "#4daf4a" lw 2 pt 5     # green
 set style line 4 lc rgb "black" lw 2
 
-set multiplot layout 3,1
+set multiplot layout 4,1
 
 set border 3
 unset key
@@ -53,10 +53,19 @@ SET_ALLOC_PLOT = "set style data linespoint; \
                   set ytics (250e6, 500e6, 1e9, 2e9, 4e9); \
                   set ytics nomirror"
 
+ROW1 = "set tmargin at screen 0.98; set bmargin at screen 0.75"
+ROW2 = "set tmargin at screen 0.675; set bmargin at screen 0.475"
+ROW3 = "set tmargin at screen 0.4; set bmargin at screen 0.2"
+
 #----------------------------------------------------------------------
 
 #set tmargin 1
 set bmargin 3
+
+#set title "25\\% insert, 25\\% update, 25\\% lookup, 25\\% delete"
+set title "25\\% of each operation"
+
+@ROW1
 
 set ylabel "time"
 set format y "%.0s %cs"
@@ -65,12 +74,25 @@ plot file("balanced","time") @POINTS
 unset ylabel
 set format y ""
 
+unset title
+
+@ROW2
+
 set ylabel "retries"
 set format y "%.0s %c"
 @SET_RETRIES_PLOT
 plot file("balanced","retries") @POINTS, num_tx ls 4 lt 0
 unset ylabel
 set format y ""
+
+set label "\\num{200 000} transactions" at screen 0.6,screen 0.09
+set label "1--5 operations per transaction" at screen 0.6,screen 0.065
+#set label "25\\% of each operation" at screen 0.6,screen 0.04
+
+set key autotitle columnheader
+set key at screen 0.5,screen 0.1
+
+@ROW3
 
 set ylabel "allocation"
 set format y "%.0s %cB"

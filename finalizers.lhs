@@ -363,7 +363,7 @@ struct TRec \{
   TRecEntry    *next_entry;
 \}
 \end{Verbatim}
-\caption{GHC's STM runtime interface (simplified), extended to support \colorA{finalizers}}
+\caption{STM runtime interface (simplified), extended to support \colorA{finalizers}}
 \end{figure}
 
 %------------------------------------------------------------

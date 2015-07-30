@@ -66,7 +66,7 @@ The I/O level rule \rul{ADMIN} lifts administrative rules into the I/O world. \r
 
 \begin{figure}[p]
 \input{semantics/orig-syntax}
-\caption{The original syntax of STM Haskell \parencite{harris-et-al-2005}}
+\caption{The syntax of STM Haskell \parencite{harris-et-al-2005}}
 \label{fig:orig-syntax}
 \end{figure}
 
@@ -199,7 +199,7 @@ This is what we mean when we speak of irrevocable I/O.
 
 \begin{figure}[!h]
 \input{semantics/step1-io}
-\caption{I/O transitions of STM Haskell with \colorA{finalizers}}
+\caption{I/O transitions with \colorA{finalizers}}
 \label{fig:step1-io}
 \end{figure}
 
@@ -241,13 +241,13 @@ This is exactly the restriction necessary to avoid deadlocks.
 
 \begin{figure}[p]
 \input{semantics/step2-stm}
-\caption{STM transitions of STM Haskell with \colorA{finalizers} and \colorB{nesting checks}}
+\caption{STM transitions with \colorA{finalizers} and \colorB{nesting checks}}
 \label{fig:step2-stm}
 \end{figure}
 
 \begin{figure}[p]
 \input{semantics/step2-io}
-\caption{I/O transitions of STM Haskell with \colorA{finalizers} and \colorB{nesting checks}}
+\caption{I/O transitions with \colorA{finalizers} and \colorB{nesting checks}}
 \label{fig:step2-io}
 \end{figure}
 
@@ -295,13 +295,13 @@ The I/O action is not executed in this case.
 
 \begin{figure}[p]
 \input{semantics/final-io}
-\caption{I/O transitions of STM Haskell with invariants, \colorA{finalizers} and \colorB{nesting checks}}
+\caption{I/O transitions with invariants, \colorA{finalizers} and \colorB{nesting checks}}
 \label{fig:final-io}
 \end{figure}
 
 \begin{figure}[p]
 \input{semantics/final-stm}
-\caption{STM transitions of STM Haskell with invariants, \colorA{finalizers} and \colorB{nesting checks}}
+\caption{STM transitions with invariants, \colorA{finalizers} and \colorB{nesting checks}}
 \label{fig:final-stm}
 \end{figure}
 
