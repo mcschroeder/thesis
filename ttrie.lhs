@@ -37,7 +37,7 @@ and then use a function like
 \begin{code}
 transfer :: Account -> Account -> Euro -> STM ()
 \end{code}
-to safely -- in the transactional sense -- move money between accounts.
+to safely\,---\,in the transactional sense\,---\,move money between accounts.
 
 But where do those accounts come from?
 If I am a bank, how do I represent the whole collection of accounts I manage, in a way that is transactionally safe?
@@ -312,10 +312,10 @@ Note that throughout the iterations of |go|, the hash |h| of the key is only com
                 Just var         -> return var
                 Nothing          -> cas inode ticket (return . List . (:xs))
 \end{code}
-The use of |unsafeIOToSTM| here is clearly safe -- all we are doing is reading the value of the indirection node.
+The use of |unsafeIOToSTM| here is clearly safe\,---\,all we are doing is reading the value of the indirection node.
 This does not have any side effects, so it does not matter if the transaction aborts prematurely.
-If the transaction retries, the indirection node is just read again -- possibly resulting in a different value.
-It is also possible that the value of the indirection node changes during the runtime of the rest of the function -- but that is precisely why we obtain a |Ticket|.
+If the transaction retries, the indirection node is just read again\,---\,possibly resulting in a different value.
+It is also possible that the value of the indirection node changes during the runtime of the rest of the function\,---\,but that is precisely why we obtain a |Ticket|.
 
 Depending on the contents of the indirection node, we either go deeper into the trie with a recursive call of |go|; |return| the |TVar| associated with the key; or insert a new |TVar| by using the |cas| function to swap out the old contents of the indirection node with an updated version that somehow contains the new |TVar|.
 
@@ -336,7 +336,7 @@ It implements a transactionally safe compare-and-swap procedure:
 \item Use |casIORef| to compare-and-swap the old contents of the |inode| with the new |node|.
 \item If the compare-and-swap was successful, the new |node| is immediately visible to all other threads.
 Return the |TVar| to the caller, who is now free to use |writeTVar| to fill in the final value.
-\item If the compare-and-swap failed, because some other thread has changed the |inode| since the time we first read it, restart the operation -- not with the STM |retry|, which would restart the whole transaction, but simply by calling |go root 0| again.
+\item If the compare-and-swap failed, because some other thread has changed the |inode| since the time we first read it, restart the operation\,---\,not with the STM |retry|, which would restart the whole transaction, but simply by calling |go root 0| again.
 \end{enumerate}
 
 All that is remaining now are the functions given for |f| in the code of |go|.
@@ -384,7 +384,7 @@ The first concession is that when looking up any key for the first time, the |lo
 This is a direct consequence of using |getTVar| to implement the trie's basic operations.
 If |getTVar| does not find the |Leaf| for a given key, it allocates a new one and inserts it.
 One might wonder if it is possible to implement a lookup function that does not rely on |getTVar|.
-The following attempt is pretty straightforward and appears to be correct at first glance -- although you might already guess from its name that something is not quite right:
+The following attempt is pretty straightforward and appears to be correct at first glance\,---\,although you might already guess from its name that something is not quite right:
 \begin{code}
 phantomLookup :: (Eq k, Hashable k) => k -> Map k v -> STM (Maybe v)
 phantomLookup k (Map root) = go root 0
@@ -509,7 +509,7 @@ Curiously, \package{stm-containers} exhibits some contention for this read-only 
 
 Updates are similarly well-suited to the |HashMap|.
 Since the keys are already present in the map, there are no structural changes necessary.
-The transactions are fast enough so that even though there is a small amount of contention --- as all transactions have to go through a single |TVar| --- the number of retries stays low enough to not matter.
+The transactions are fast enough so that even though there is a small amount of contention\,---\,as all transactions have to go through a single |TVar|\,---\,the number of retries stays low enough to not matter.
 The |HashMap| is roughly twice as fast as the \package{ttrie}, which is roughly twice as fast in this scenario as the \package{stm-containers} map.
 
 The story looks entirely different for the insert and delete operations.

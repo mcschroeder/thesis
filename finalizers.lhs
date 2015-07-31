@@ -178,8 +178,8 @@ It is up to the programmer to not waste undue time or otherwise ensure that the 
 
 Since the finalizer can be an arbitrary I/O action, the question arises:
 can we run |atomicallyWithIO| \emph{inside} |atomicallyWithIO|?
-
-Running |atomically| inside |atomically| is evidently not possible --- the type system forbids it.
+  
+Running |atomically| inside |atomically| is evidently not possible\,---\,the type system forbids it.
 Even something like \begin{code}atomically (unsafeIOToSTM (atomically m))\end{code} will not work: GHC detects such nefariousness and throws a runtime exception.
 The runtime system does not support running a transaction inside another transaction, because there is no single intuitive way to resolve problems such as conflicting transactions or nested rollback.
 Luckily, it does not appear that this kind of nesting is necessary in practice or even useful.
@@ -226,7 +226,7 @@ There is only one restriction:
 this would inevitably lead to a deadlock, as the inner transaction would have to wait for the outer transaction to commit and release its locks on the shared variables, while the outer transaction can only commit once the inner transaction has committed.
 
 But are these kinds of deadlock situations not exactly what STM is supposed to protect us from?
-True, but I feel that introducing the possibility of deadlocks --- limited to this one specific scenario, in which the nested transactions operate on the same set of variables, which I believe is rather artificial --- is justified by the great usefulness of allowing independent STM transactions to run during an STM finalizer.
+True, but I feel that introducing the possibility of deadlocks\,---\,limited to this one specific scenario, in which the nested transactions operate on the same set of variables, which I believe is rather artificial\,---\,is justified by the great usefulness of allowing independent STM transactions to run during an STM finalizer.
 Also, the runtime system can always detect these kinds of deadlocks instead of simply looping forever, and it will throw an exception that gracefully aborts the transactions involved and that could be used to pinpoint the source of the bug.
 
 In principle, circular dependencies between shared variables could even be detected statically, at compile time.
@@ -237,7 +237,7 @@ Alternatively, one could imagine a separate pre-processing step in the compiler,
 We should note an important point here:
 a finalizer has the same global view of the world as any other I/O action running at the same time.
 In particular, the new value of a |TVar| updated during the STM part of the transaction will not be visible in the finalizer.
-The variable can be read safely -- a deadlock only happens if an inner transaction tries to \emph{modify} a shared variable -- but the value returned will be its old value, which is the actual, globally known value of the |TVar|, at this moment in time.
+The variable can be read safely\,---\,a deadlock only happens if an inner transaction tries to \emph{modify} a shared variable\,---\,but the value returned will be its old value, which is the actual, globally known value of the |TVar|, at this moment in time.
 
 %============================================================
 

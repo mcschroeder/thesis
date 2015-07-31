@@ -236,7 +236,7 @@ All other rules treat $\Sigma$ in very much the same way as the heap.
 % io
 Finally, the purpose of $\Sigma$ becomes clear on the I/O-level, where rules \rul{ARET} and \rul{ATHROW2} include a new condition above the line:
 the set of memory locations read from or written to during the STM transition ($\Sigma'_\textsc{rw}$) and the set of memory locations written to during the finalizing I/O transition ($\hat{\Sigma}_\textsc{w}$) must be entirely distinct.
-There must not be a single shared reference between the two phases -- except for references that the finalizer has only read.
+There must not be a single shared reference between the two phases\,---\,except for references that the finalizer has only read.
 This is exactly the restriction necessary to avoid deadlocks.
 
 \begin{figure}[p]

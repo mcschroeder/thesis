@@ -376,7 +376,7 @@ Replaying this recording will first replay |F|, which runs |f| which calls |g|, 
 We have now called |g| twice, even though it was only executed once during the original run!
 This is unfortunate, because it means that to avoid such situations, the user has to keep the call graph of recordable functions in mind, and there is no help from the compiler.
 
-This makes one wonder: why do we record on this semi-high level -- that obviously is not high enough to save us from such basic yet easily overlooked mistakes -- instead of just directly recording every primitive |writeTVar| operation?
+This makes one wonder: why do we record on this semi-high level\,---\,that obviously is not high enough to save us from such basic yet easily overlooked mistakes\,---\,instead of just directly recording every primitive |writeTVar| operation?
 We may not be able to serialize a |TVar| itself, but we can certainly serialize its contents.
 Could we not have a function
 \begin{code}

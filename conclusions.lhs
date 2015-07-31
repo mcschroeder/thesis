@@ -83,7 +83,7 @@ It would be interesting to see if and how such a system could be implemented usi
 
 \medskip
 
-By allowing nesting of transactions, finalizers can truly be arbitrary I/O actions, including those that are themselves composed of STM transactions --- like parts of the Cloud Haskell platform.
+By allowing nesting of transactions, finalizers can truly be arbitrary I/O actions, including those that are themselves composed of STM transactions\,---\,like parts of the Cloud Haskell platform.
 But in the current design, programmer error in the form of circular dependencies between inner and outer transactions is only detected at runtime, even though it should be possible to do this statically.
 One could write a compiler plugin or, more radically, rewrite the STM API to be more strongly typed, perhaps by using an effect system \parencite{orchard-petricek-2014}.
 Such a new API would be incompatible with current STM code, but a full redesign of the interface could open up other possibilities.
