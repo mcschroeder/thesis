@@ -124,7 +124,7 @@ Still, bypassing the type system is usually a bad sign, and indeed we will see t
 
 \section{Implementation}
 
-The version of the transactional trie discussed in this chapter is available on Hackage at \url{http://hackage.haskell.org/ttrie-0.1}.
+The version of the transactional trie discussed in this chapter is available on Hackage at \url{http://hackage.haskell.org/package/ttrie-0.1.2}.
 The full source code can also be found at \url{http://github.com/mcschroeder/ttrie}.
 
 The module |Control.Concurrent.STM.Map|\footnote{The name of the trie's public data type is |Map|, instead of, say, |TTrie|.
