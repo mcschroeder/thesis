@@ -13,6 +13,8 @@ It is based on the lock-free concurrent trie, and uses localized side-effects to
  
 > Both finalizers and the transactional trie are examples of combining transactions with side-effects. Finalizers are a general top-down approach, while the transactional trie incorporates side effects on the micro-level. I demonstrate the effectiveness of both by building a full sample application that uses STM as a database language, providing durability and avoiding contention.
 
+There's also a [pretty poster](poster.pdf) summarizing everything.
+
 ### Related Projects
 
 * [A patched version of GHC](http://github.com/mcschroeder/ghc) that supports STM finalizers.
